@@ -1,0 +1,81 @@
+export const zebxKnowledge = {
+  identity: {
+    name: 'Subhashish Budati',
+    role: 'Computer Science student focused on AI applications and software engineering',
+    location: 'Hyderabad, India',
+  },
+  education: {
+    institution: 'JNTUH - University College of Engineering, Science & Technology Hyderabad',
+    program: 'Integrated B.Tech + M.Tech in Computer Science & Engineering',
+    period: '2024-2029',
+  },
+  skills: {
+    programming: ['C', 'Python', 'Java', 'HTML', 'CSS'],
+    toolsAndVersionControl: ['Git', 'GitHub'],
+    coreComputerScience: [
+      'Data Structures',
+      'DBMS',
+      'Operating Systems',
+      'Computer Networks',
+      'Software Engineering',
+      'Design & Analysis of Algorithms',
+      'Computer Organization & Architecture',
+    ],
+    aiAndSoftwareDevelopment: [
+      'AI-powered Applications',
+      'Google Gemini Integration',
+      'API Integration',
+      'Software Debugging',
+    ],
+    devopsAndDeployment: [
+      'Deployment',
+      'Containerization',
+      'CI/CD',
+      'Deployment Configuration',
+    ],
+  },
+  projects: [
+    {
+      title: 'AI-Driven Chatbot as a Virtual Assistant Using DevOps',
+      year: '2026',
+      description: 'An AI-powered virtual assistant focused on conversational interaction and Google Gemini integration, developed with attention to user interaction, backend communication, conversation/session handling, deployment configuration, and engineering/debugging.',
+      classifications: ['AI Applications', 'Gemini Integration', 'Deployment', 'Containerization', 'CI/CD'],
+      github: 'https://github.com/subhashishbudati9976-creator/AI-Driven-Chatbot-as-a-Virtual-Assistant',
+    },
+    {
+      title: 'ODA-CMS',
+      fullTitle: 'Orbital Debris Avoidance Constellation Management System',
+      year: '2026',
+      description: 'A full-stack platform for simulated satellite constellation monitoring, conjunction-threat analysis, avoidance decisions, and mission analytics.',
+      capabilities: ['3D Orbital Visualization', 'Orbit Propagation', 'Conjunction Threat Detection', 'Alerts', 'Mission Analytics'],
+    },
+    {
+      title: 'Railway Reservation System',
+      year: '2026',
+      description: 'A web-based railway reservation and management system covering train search, passenger management, booking, cancellation, schedules, payments, and administration.',
+      capabilities: ['Train Search', 'Booking', 'Cancellation', 'Passenger Management', 'Relational Data'],
+      github: 'https://github.com/subhashishbudati9976-creator/RailReserve-Railway-Reservation-System',
+    },
+  ],
+  experience: {
+    organization: 'ShadowFox',
+    role: 'Full-Stack Developer Intern',
+    status: 'Ongoing',
+    start: 'September 2026',
+    mode: 'Virtual',
+    duration: '01 month',
+  },
+  activities: [
+    { title: 'JNTUH-JAC', role: '1st Year Coordinator' },
+    { title: 'University Class Representative', role: 'Class Representative (3 Semesters)' },
+    { title: 'QUEST 2025', role: 'Technical Workshop Organizer' },
+    { title: 'Raghavarsha Club', role: 'Beatboxer (10 Years Experience)' },
+    { title: 'Being Infinity Bootcamp', role: 'Web Development & Deployment' },
+    { title: 'Avalanche Ecosystem Workshop', role: 'Blockchain Architecture Attendee' },
+  ],
+  contact: {
+    email: 'subhashishbudati9976@gmail.com',
+    linkedin: 'https://www.linkedin.com/in/subhashish-budati-685664427',
+    github: 'https://github.com/subhashishbudati9976-creator',
+  },
+} as const;
