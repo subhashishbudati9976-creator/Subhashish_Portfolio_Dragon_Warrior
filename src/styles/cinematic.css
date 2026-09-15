@@ -26,6 +26,10 @@
   pointer-events: none;
   overflow: hidden;
   background-color: var(--color-bg-base);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Fallback / Instant Poster */
@@ -38,6 +42,7 @@
   background-position: center center;
   z-index: 1;
   opacity: 1;
+  transform: translate3d(0, 0, 0);
   transition: opacity 0.5s ease-out;
 }
 
@@ -56,6 +61,10 @@
   object-position: center center;
   z-index: 2;
   opacity: 0;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transition: opacity 0.4s ease-out;
 }
 
@@ -204,9 +213,7 @@
   gap: var(--space-3);
   margin-top: var(--space-6);
   padding: 0.4rem 0.85rem;
-  background: rgba(8, 9, 11, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(8, 9, 11, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-left: 2.5px solid var(--color-accent-primary);
   border-radius: var(--radius-xs);
@@ -252,9 +259,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: 0.35rem 0.8rem;
-  background: rgba(8, 9, 11, 0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(8, 9, 11, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-left: 2.5px solid var(--color-accent-primary);
   border-radius: var(--radius-xs);
@@ -323,9 +328,7 @@
 }
 
 .education-card {
-  background: rgba(15, 16, 20, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 16, 20, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-top-color: rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
@@ -437,9 +440,7 @@
 }
 
 .stage-2-focus-box {
-  background: rgba(15, 16, 20, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 16, 20, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   padding: var(--space-5);
@@ -509,9 +510,7 @@
 }
 
 .principles-card {
-  background: rgba(15, 16, 20, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 16, 20, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-top-color: rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
@@ -578,12 +577,10 @@
   margin-bottom: var(--space-12);
 }
 
-/* Translucent Project Card */
+/* Solid Obsidian Project Card */
 .project-card {
   position: relative;
-  background: rgba(15, 16, 20, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 16, 20, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-top-color: rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
@@ -627,18 +624,41 @@
 }
 
 /* ==========================================================================
-   7. MINIMAL CINEMATIC HUD NAVIGATION
-   ========================================================================== */
+/* Top hover / proximity reveal zone */
+.nav-reveal-zone {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 52px;
+  z-index: 99;
+  pointer-events: auto;
+}
 
 .cinematic-hud-nav {
   position: fixed;
   top: var(--space-4);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0);
   z-index: 100;
   display: flex;
   align-items: center;
   pointer-events: auto;
+  transition:
+    transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.28s ease-out;
+  will-change: transform;
+}
+
+.cinematic-hud-nav.is-hidden {
+  transform: translateX(-50%) translateY(calc(-100% - var(--space-8)));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cinematic-hud-nav.is-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
 .hud-nav-inner {

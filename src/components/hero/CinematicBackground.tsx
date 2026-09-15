@@ -14,16 +14,22 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
 
-  // Performance refs — ZERO React state updates during scroll
+  // High-performance refs — ZERO layout recalculation or React state updates during scroll
   const targetProgressRef = useRef(0);
   const currentProgressRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
   const lastTickRef = useRef<number>(0);
   const isTimelineInViewRef = useRef(true);
 
-  // Seek gating refs
+  // Cached layout dimensions — updated only on resize, NEVER during scroll
+  const containerTopRef = useRef(0);
+  const scrollableDistanceRef = useRef(1);
+
+  // Seek gating & watchdog refs
   const seekBusyRef = useRef(false);
   const pendingTimeRef = useRef<number | null>(null);
+  const seekWatchdogRef = useRef<number | null>(null);
+  const lastSeekStampRef = useRef(0);
 
   // Check prefers-reduced-motion
   useEffect(() => {
@@ -34,15 +40,15 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Safe seek with deadband threshold & queue gating
+  // Safe seek with hardware-acceleration, deadband threshold & watchdog protection
   const requestSeek = (targetTime: number) => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
 
-    const safeTime = Math.max(0, Math.min(video.duration - 0.05, targetTime));
+    const safeTime = Math.max(0, Math.min(video.duration - 0.04, targetTime));
 
-    // Avoid redundant seeking if already within 0.025s deadband
-    if (Math.abs(video.currentTime - safeTime) < 0.025) return;
+    // Deadband threshold: skip seek if within ~1 frame duration (35ms)
+    if (Math.abs(video.currentTime - safeTime) < 0.035) return;
 
     if (seekBusyRef.current) {
       pendingTimeRef.current = safeTime;
@@ -50,28 +56,52 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     }
 
     seekBusyRef.current = true;
+    lastSeekStampRef.current = performance.now();
+
+    // Watchdog: auto-release busy lock if browser seeked event doesn't fire within 90ms
+    if (seekWatchdogRef.current !== null) {
+      window.clearTimeout(seekWatchdogRef.current);
+    }
+    seekWatchdogRef.current = window.setTimeout(() => {
+      seekBusyRef.current = false;
+      if (pendingTimeRef.current !== null) {
+        const next = pendingTimeRef.current;
+        pendingTimeRef.current = null;
+        requestSeek(next);
+      }
+    }, 90);
+
     try {
-      video.currentTime = safeTime;
+      const vid = video as HTMLVideoElement & { fastSeek?: (time: number) => void };
+      if (typeof vid.fastSeek === 'function') {
+        vid.fastSeek(safeTime);
+      } else {
+        video.currentTime = safeTime;
+      }
     } catch {
       seekBusyRef.current = false;
+      if (seekWatchdogRef.current !== null) {
+        window.clearTimeout(seekWatchdogRef.current);
+        seekWatchdogRef.current = null;
+      }
     }
   };
 
-  // High-performance rAF interpolation loop
+  // High-performance rAF interpolation loop (smooth inertial lerp)
   const tick = (now: number) => {
     const lastTick = lastTickRef.current || now;
-    const dt = Math.min(100, now - lastTick);
+    const dt = Math.min(64, now - lastTick);
     lastTickRef.current = now;
 
-    // Normalizing lerp factor (k=0.18) to 60fps
-    const factor = 1 - Math.pow(1 - 0.18, dt / 16.667);
+    // Fluid cinematic lerp factor (k=0.14) normalized across frame intervals
+    const factor = 1 - Math.pow(1 - 0.14, dt / 16.667);
     const target = targetProgressRef.current;
     let current = currentProgressRef.current;
 
     current += (target - current) * factor;
 
-    // Idle detection threshold
-    if (Math.abs(target - current) < 0.0003) {
+    // Idle threshold: snap when close enough to save GPU cycles
+    if (Math.abs(target - current) < 0.0002) {
       current = target;
       currentProgressRef.current = current;
       rafIdRef.current = null;
@@ -81,9 +111,9 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
       rafIdRef.current = requestAnimationFrame(tick);
     }
 
-    // Direct video currentTime update
+    // Seek video at throttled interval (max 30fps seek to prevent decoder congestion)
     const video = videoRef.current;
-    if (video && video.duration) {
+    if (video && video.duration && (now - lastSeekStampRef.current > 30 || Math.abs(target - current) < 0.001)) {
       requestSeek(current * video.duration);
     }
 
@@ -101,41 +131,67 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     }
   };
 
-  // Passive window scroll tracking
+  // Cache static dimensions and listen to resize / orientation changes
   useEffect(() => {
-    if (isReducedMotion) return;
-
-    const calculateProgress = () => {
+    const updateDimensions = () => {
       const container = timelineRef.current;
       if (!container) return;
 
       const rect = container.getBoundingClientRect();
-      const scrollableDistance = container.offsetHeight - window.innerHeight;
+      const scrollTop = window.scrollY || window.pageYOffset;
+      containerTopRef.current = rect.top + scrollTop;
+      scrollableDistanceRef.current = Math.max(1, container.offsetHeight - window.innerHeight);
 
-      if (scrollableDistance <= 0) {
-        targetProgressRef.current = 0;
-      } else {
-        const scrolled = -rect.top;
-        const progress = scrolled / scrollableDistance;
-        targetProgressRef.current = Math.max(0, Math.min(1, progress));
-      }
+      // Recompute progress with cached values
+      const scrolled = scrollTop - containerTopRef.current;
+      targetProgressRef.current = Math.max(0, Math.min(1, scrolled / scrollableDistanceRef.current));
+      startLoopIfNeeded();
+    };
+
+    updateDimensions();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions();
+    });
+
+    if (timelineRef.current) {
+      resizeObserver.observe(timelineRef.current);
+    }
+
+    window.addEventListener('resize', updateDimensions, { passive: true });
+    window.addEventListener('orientationchange', updateDimensions, { passive: true });
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateDimensions);
+      window.removeEventListener('orientationchange', updateDimensions);
+    };
+  }, [timelineRef]);
+
+  // Ultra-lightweight passive scroll listener (ZERO getBoundingClientRect calls)
+  useEffect(() => {
+    if (isReducedMotion) return;
+
+    const onScroll = () => {
+      const currentScrollY = window.scrollY || window.pageYOffset;
+      const scrolled = currentScrollY - containerTopRef.current;
+      const progress = scrolled / scrollableDistanceRef.current;
+      targetProgressRef.current = Math.max(0, Math.min(1, progress));
 
       startLoopIfNeeded();
     };
 
-    window.addEventListener('scroll', calculateProgress, { passive: true });
-    window.addEventListener('resize', calculateProgress);
-    calculateProgress();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
     return () => {
-      window.removeEventListener('scroll', calculateProgress);
-      window.removeEventListener('resize', calculateProgress);
+      window.removeEventListener('scroll', onScroll);
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
       }
     };
-  }, [timelineRef, isReducedMotion]);
+  }, [isReducedMotion]);
 
   // IntersectionObserver to sleep rAF loop when outside viewport
   useEffect(() => {
@@ -160,12 +216,16 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     return () => observer.disconnect();
   }, [timelineRef, isReducedMotion]);
 
-  // Seek listeners to guarantee deadlock safety
+  // Video seek event listeners with watchdog cleanup
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleSeeked = () => {
+      if (seekWatchdogRef.current !== null) {
+        window.clearTimeout(seekWatchdogRef.current);
+        seekWatchdogRef.current = null;
+      }
       seekBusyRef.current = false;
       if (pendingTimeRef.current !== null) {
         const next = pendingTimeRef.current;
@@ -175,6 +235,10 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     };
 
     const handleError = () => {
+      if (seekWatchdogRef.current !== null) {
+        window.clearTimeout(seekWatchdogRef.current);
+        seekWatchdogRef.current = null;
+      }
       seekBusyRef.current = false;
       pendingTimeRef.current = null;
     };
@@ -189,6 +253,10 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
 
     return () => {
+      if (seekWatchdogRef.current !== null) {
+        window.clearTimeout(seekWatchdogRef.current);
+        seekWatchdogRef.current = null;
+      }
       video.removeEventListener('seeked', handleSeeked);
       video.removeEventListener('error', handleError);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);

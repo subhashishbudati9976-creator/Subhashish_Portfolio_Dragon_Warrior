@@ -20,8 +20,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     featured,
   } = project;
 
+  const cardRectRef = React.useRef<DOMRect | null>(null);
+
+  const handlePointerEnter = (event: React.PointerEvent<HTMLElement>) => {
+    cardRectRef.current = event.currentTarget.getBoundingClientRect();
+  };
+
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
+    const rect = cardRectRef.current;
+    if (!rect) return;
     event.currentTarget.style.setProperty(
       '--spotlight-x',
       `${event.clientX - rect.left}px`
@@ -37,6 +44,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       className={`project-card motion-reveal${featured ? ' featured-card' : ''}`}
       data-motion-reveal="fade-up"
       aria-label={`Project: ${title}`}
+      onPointerEnter={handlePointerEnter}
       onPointerMove={handlePointerMove}
     >
       <div className="project-card-inner">

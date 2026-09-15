@@ -24,9 +24,7 @@ const StaggeredText: React.FC<StaggeredTextProps> = ({
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
-        } else {
-          // Replay animation on scroll back
-          setVisible(false);
+          observer.disconnect();
         }
       },
       {

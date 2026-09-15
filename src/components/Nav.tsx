@@ -13,30 +13,104 @@ const SECTION_IDS = NAV_ITEMS.map(item => item.href.slice(1));
 export const Nav: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
+  const [isNavVisible, setIsNavVisible] = useState(true);
+
+  const navVisibleRef = useRef(true);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
+  const navRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
-  /* Track active section via IntersectionObserver */
+  /* Helper to update navbar visibility only when state changes */
+  const updateNavVisibility = useCallback((visible: boolean) => {
+    if (navVisibleRef.current !== visible) {
+      navVisibleRef.current = visible;
+      setIsNavVisible(visible);
+    }
+  }, []);
+
+  /* 
+   * Auto-Hiding Scroll Tracking:
+   * - At top of page: always visible.
+   * - Scrolling down: smoothly hides.
+   * - Scrolling up: reveals.
+   * - Passive listener + rAF batching to eliminate scroll lag.
+   */
   useEffect(() => {
-    const observers: IntersectionObserver[] = [];
+    const handleScroll = () => {
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY || window.pageYOffset;
+        const lastScrollY = lastScrollYRef.current;
+        const delta = currentScrollY - lastScrollY;
+
+        // 1. Always show when near top of the page
+        if (currentScrollY <= 50) {
+          updateNavVisibility(true);
+        }
+        // 2. Hide when scrolling down past threshold
+        else if (delta > 8 && currentScrollY > 80) {
+          updateNavVisibility(false);
+        }
+        // 3. Show when scrolling up noticeably
+        else if (delta < -12) {
+          updateNavVisibility(true);
+        }
+
+        lastScrollYRef.current = currentScrollY;
+        tickingRef.current = false;
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [updateNavVisibility]);
+
+  /*
+   * Cursor Proximity Reveal:
+   * When cursor approaches top 55px of viewport, slide navbar back down.
+   */
+  useEffect(() => {
+    let mouseRaf = 0;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (mouseRaf) return;
+      mouseRaf = requestAnimationFrame(() => {
+        mouseRaf = 0;
+        if (e.clientY <= 55) {
+          updateNavVisibility(true);
+        }
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (mouseRaf) cancelAnimationFrame(mouseRaf);
+    };
+  }, [updateNavVisibility]);
+
+  /* Track active section via a single lightweight IntersectionObserver */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-30% 0px -50% 0px', threshold: 0 }
+    );
 
     SECTION_IDS.forEach(id => {
       const el = document.getElementById(id);
-      if (!el) return;
-
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setActiveSection(id);
-          }
-        },
-        { rootMargin: '-30% 0px -50% 0px', threshold: 0 }
-      );
-      obs.observe(el);
-      observers.push(obs);
+      if (el) observer.observe(el);
     });
 
-    return () => observers.forEach(obs => obs.disconnect());
+    return () => observer.disconnect();
   }, []);
 
   /* Smooth-scroll + close mobile overlay */
@@ -83,11 +157,20 @@ export const Nav: React.FC = () => {
 
   return (
     <>
+      {/* Invisible Top Hover / Reveal Zone */}
+      <div
+        className="nav-reveal-zone"
+        onMouseEnter={() => updateNavVisibility(true)}
+        aria-hidden="true"
+      />
+
       {/* Minimal cinematic HUD navigation */}
       <nav
-        className="cinematic-hud-nav"
+        ref={navRef}
+        className={`cinematic-hud-nav${isNavVisible || mobileOpen ? ' is-visible' : ' is-hidden'}`}
         aria-label="Primary navigation"
         role="navigation"
+        onMouseEnter={() => updateNavVisibility(true)}
       >
         <div className="hud-nav-inner">
           {/* Brand monogram */}

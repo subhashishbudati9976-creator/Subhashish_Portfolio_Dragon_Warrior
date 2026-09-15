@@ -14,20 +14,19 @@ export function useRevealObserver() {
       return () => root.classList.remove('motion-ready');
     }
 
+    // High performance one-shot reveal observer to prevent scroll paint-thrashing
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          const element = entry.target as HTMLElement;
-
           if (entry.isIntersecting) {
+            const element = entry.target as HTMLElement;
             element.classList.add('motion-visible');
-          } else {
-            // Re-enables replay when scrolling away and returning
-            element.classList.remove('motion-visible');
+            // Unobserve once revealed — prevents unnecessary style recalcs during fast scroll
+            observer.unobserve(element);
           }
         });
       },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.06 }
+      { rootMargin: '0px 0px -4% 0px', threshold: 0.05 }
     );
 
     revealElements.forEach(element => observer.observe(element));
