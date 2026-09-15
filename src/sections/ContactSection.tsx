@@ -1,6 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { OptionWheel } from '../components/OptionWheel';
+
+const CONTACT_CHANNELS = [
+  {
+    label: 'EMAIL',
+    detail: 'subhashishbudati9976@gmail.com',
+    action: 'SEND MESSAGE',
+    href: 'mailto:subhashishbudati9976@gmail.com',
+  },
+  {
+    label: 'LINKEDIN',
+    detail: 'PROFILE',
+    action: 'OPEN PROFILE',
+    href: 'https://www.linkedin.com/in/subhashish-budati-685664427',
+  },
+  {
+    label: 'GITHUB',
+    detail: 'REPOSITORIES',
+    action: 'VIEW GITHUB',
+    href: 'https://github.com/subhashishbudati9976-creator',
+  },
+];
 
 export const ContactSection: React.FC = () => {
+  const [selectedChannel, setSelectedChannel] = useState(0);
+  const activeChannel = CONTACT_CHANNELS[selectedChannel];
+
   return (
     <section
       id="contact"
@@ -24,21 +49,54 @@ export const ContactSection: React.FC = () => {
 
         <div className="signal-interface motion-reveal" data-motion-reveal="fade-up">
           <div className="signal-interface-heading">
-            <span>CONTACT</span>
-            <span className="signal-heading-line" aria-hidden="true" />
+            <span>CONTACT // SIGNAL CONSOLE</span>
+            <span className="signal-ready-label"><i aria-hidden="true" />STATUS // READY</span>
           </div>
-          <a className="signal-contact-link" href="mailto:subhashishbudati9976@gmail.com">
-            <span>EMAIL</span>
-            <span>subhashishbudati9976@gmail.com ↗</span>
-          </a>
-          <a className="signal-contact-link" href="https://www.linkedin.com/in/subhashish-budati-685664427" target="_blank" rel="noopener noreferrer">
-            <span>LINKEDIN</span>
-            <span>PROFILE ↗</span>
-          </a>
-          <a className="signal-contact-link" href="https://github.com/subhashishbudati9976-creator" target="_blank" rel="noopener noreferrer">
-            <span>GITHUB</span>
-            <span>REPOSITORIES ↗</span>
-          </a>
+
+          <div className="signal-console-meta">
+            <span>SIGNAL CHANNEL // 03</span>
+            <span>SELECT CHANNEL</span>
+          </div>
+
+          <div className="signal-console-body">
+            <div className="contact-option-wheel">
+              <OptionWheel
+                items={CONTACT_CHANNELS.map(channel => channel.label)}
+                defaultSelected={0}
+                textColor="#777777"
+                activeColor="#ffffff"
+                side="left"
+                fontSize={1.6}
+                spacing={1.05}
+                curve={1}
+                tilt={7}
+                blur={1.8}
+                fade={0.24}
+                minOpacity={0.08}
+                smoothing={170}
+                inset={30}
+                loop
+                draggable
+                soundUrl=""
+                wheelEnabled
+                onChange={index => setSelectedChannel(index)}
+              />
+            </div>
+
+            <div className="signal-selected-channel">
+              <span className="signal-selected-label">{activeChannel.label}</span>
+              <span className="signal-selected-rule" aria-hidden="true" />
+              <strong>{activeChannel.detail}</strong>
+              <a
+                href={activeChannel.href}
+                className="signal-selected-action"
+                target={activeChannel.label === 'EMAIL' ? undefined : '_blank'}
+                rel={activeChannel.label === 'EMAIL' ? undefined : 'noopener noreferrer'}
+              >
+                {activeChannel.action} ↗
+              </a>
+            </div>
+          </div>
         </div>
 
         <div className="signal-action-zone motion-reveal" data-motion-reveal="fade-up">
