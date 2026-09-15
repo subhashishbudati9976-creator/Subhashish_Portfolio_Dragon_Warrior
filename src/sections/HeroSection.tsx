@@ -48,6 +48,7 @@ export const HeroSection: React.FC = () => {
 
         <p className="hero-discipline">CSE • AI APPLICATIONS • SOFTWARE ENGINEERING</p>
         <p className="hero-tagline">Turning ideas into impact.</p>
+        <p className="hero-personality">“Hey amigos, I am Subhashish — you can call me Subu or Nani.”</p>
 
         <div className="hero-cta-group">
           <Button

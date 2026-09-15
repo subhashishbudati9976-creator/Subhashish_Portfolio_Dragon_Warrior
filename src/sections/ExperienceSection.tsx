@@ -1,121 +1,106 @@
 import React from 'react';
-import type { ExperienceItem } from '../types';
 
-const EXPERIENCE: ExperienceItem[] = [
+const SKILL_GROUPS = [
   {
-    id: 'shadowfox',
-    role: 'Full-Stack Developer Intern',
-    organisation: 'ShadowFox',
-    timeline: 'September 2026',
-    type: 'Internship',
-    bullets: [
-      '1-month virtual internship focused on practical, project-based full-stack software development.',
-      'Progressive tasks emphasizing modern web architecture, clean component structure, and backend workflows.',
-      'Active collaboration with mentors, self-paced technical research, and iterative code reviews.',
-      'Applied systematic debugging to solve hands-on engineering challenges toward final project submission.',
+    id: 'programming',
+    label: 'PROGRAMMING',
+    items: [
+      { number: '01', value: 'C' },
+      { number: '02', value: 'Python' },
+      { number: '03', value: 'Java' },
+      { number: '04', value: 'HTML' },
+      { number: '05', value: 'CSS' },
     ],
   },
   {
-    id: 'academic-dev',
-    role: 'Software Developer — AI & Systems',
-    organisation: 'Academic Software Engineering',
-    timeline: '2026',
-    type: 'Academic Project',
-    bullets: [
-      'Architected and implemented an AI-powered virtual assistant utilizing Python and Google Gemini for natural-language workflows.',
-      'Configured multi-container environments using Docker and Docker Compose for seamless local and deployment parity.',
-      'Established automated CI/CD pipeline checks for reproducible linting, builds, and test verification.',
-      'Diagnosed and resolved subtle API throttling, streaming response edge cases, and environment variable configurations.',
-      'Maintained thorough technical documentation detailing architecture decisions and troubleshooting runbooks.',
+    id: 'version-control',
+    label: 'TOOLS & VERSION CONTROL',
+    items: [
+      { number: '01', value: 'Git' },
+      { number: '02', value: 'GitHub' },
     ],
   },
-];
-
-const PRINCIPLES = [
   {
-    title: 'Debug Systematically',
-    desc: 'Diagnosing root causes in container environments and API pipelines saves more time than guesswork.',
+    id: 'computer-science',
+    label: 'CORE COMPUTER SCIENCE',
+    items: [
+      { number: '01', value: 'Data Structures' },
+      { number: '02', value: 'DBMS' },
+      { number: '03', value: 'Operating Systems' },
+      { number: '04', value: 'Computer Networks' },
+      { number: '05', value: 'Software Engineering' },
+      { number: '06', value: 'Design & Analysis of Algorithms' },
+      { number: '07', value: 'Computer Organization & Architecture' },
+    ],
   },
   {
-    title: 'Iterate Toward Reliability',
-    desc: 'Reliability comes from continuous deploy-observe-fix cycles until the system is hardened.',
+    id: 'ai-software',
+    label: 'AI & SOFTWARE DEVELOPMENT',
+    items: [
+      { number: '01', value: 'AI-powered Applications' },
+      { number: '02', value: 'Google Gemini Integration' },
+      { number: '03', value: 'API Integration' },
+      { number: '04', value: 'Software Debugging' },
+    ],
   },
   {
-    title: 'Document as You Build',
-    desc: 'Architectural decisions that are not recorded are lost. Runbooks and technical specs are part of the deliverable.',
+    id: 'devops',
+    label: 'DEVOPS & DEPLOYMENT',
+    items: [
+      { number: '01', value: 'Deployment' },
+      { number: '02', value: 'Containerization' },
+      { number: '03', value: 'CI/CD' },
+      { number: '04', value: 'Deployment Configuration' },
+    ],
   },
 ];
 
 export const ExperienceSection: React.FC = () => {
   return (
     <div className="stage-3-layout page-container">
-      {/* Chapter Marker */}
-      <div className="stage-chapter-marker motion-reveal" data-motion-reveal="fade-up">
-        <span className="stage-chapter-num">03 // STAGE</span>
-        <span className="stage-chapter-title">Crimson Resonance &bull; Experience &amp; Engineering Disciplines</span>
+      <div className="stage-chapter-marker motion-reveal arsenal-chapter" data-motion-reveal="fade-up">
+        <span className="stage-chapter-num">CHAPTER 02</span>
       </div>
 
       <div className="stage-3-content-grid">
-        {/* Left Column: Focused Timeline — minimal, semi-translucent cards so crimson aura remains visible */}
-        <div className="stage-3-timeline-col motion-reveal" data-motion-reveal="fade-up">
-          <div className="section-label">
-            <span className="type-eyebrow">Professional Timeline</span>
-          </div>
-          <h2 className="section-title">
-            Where I&apos;ve Engineered
+        <div className="stage-3-timeline-col">
+          <h2 className="section-title arsenal-title motion-reveal" data-motion-reveal="fade-up">
+            THE ARSENAL
           </h2>
 
-          <ol className="timeline" aria-label="Career and academic experience timeline">
-            {EXPERIENCE.map((item, index) => (
-              <li
-                key={item.id}
-                className="timeline-item motion-reveal"
-                data-motion-reveal="fade-up"
-                style={{
-                  '--motion-reveal-delay': `${index * 120}ms`,
-                } as React.CSSProperties}
-              >
-                <div className="timeline-dot" aria-hidden="true" />
-
-                <div className="timeline-meta">
-                  <span className="timeline-date">{item.timeline}</span>
-                  <span className="timeline-type-tag">
-                    {item.type.toUpperCase()}
-                  </span>
-                </div>
-
-                <h3 className="timeline-role">{item.role}</h3>
-                <p className="timeline-org">{item.organisation}</p>
-
-                <ul className="timeline-bullets" aria-label={`Details for ${item.role}`}>
-                  {item.bullets.map((bullet, i) => (
-                    <li key={i}>{bullet}</li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ol>
+          <p className="arsenal-subtitle motion-reveal" data-motion-reveal="fade-up">
+            TOOLS OF THE CRAFT
+          </p>
         </div>
 
-        {/* Center/Right space: Keeps the warrior and crimson energy unsheathing in full view */}
         <div className="stage-3-negative-space" aria-hidden="true" />
 
-        {/* Right Lower Box: Engineering Principles */}
         <aside className="stage-3-principles-col motion-reveal" data-motion-reveal="fade-up">
-          <div className="surface-card principles-card">
-            <span className="type-eyebrow" style={{ display: 'block', marginBottom: 'var(--space-4)' }}>
-              Engineering Mindset
-            </span>
-
-            <div className="principles-list">
-              {PRINCIPLES.map(p => (
-                <div key={p.title} className="principle-entry">
-                  <h4 className="principle-entry-title">{p.title}</h4>
-                  <p className="principle-entry-desc">{p.desc}</p>
+          <div className="arsenal-groups" aria-label="Technology groups">
+            {SKILL_GROUPS.map((group, index) => (
+              <div
+                key={group.id}
+                className="arsenal-group motion-reveal"
+                data-motion-reveal="fade-up"
+                style={{ '--motion-reveal-delay': `${index * 120}ms` } as React.CSSProperties}
+              >
+                <div className="arsenal-group-header">
+                  <span>{group.label}</span>
                 </div>
-              ))}
-            </div>
+
+                <ul className="arsenal-list" aria-label={group.label}>
+                  {group.items.map(item => (
+                    <li key={`${group.id}-${item.number}`} className="arsenal-item">
+                      <span className="arsenal-number">{item.number}</span>
+                      <span className="arsenal-name">{item.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
+
+          <p className="arsenal-footer">BUILDING THROUGH PRACTICAL PROJECTS.</p>
         </aside>
       </div>
     </div>
