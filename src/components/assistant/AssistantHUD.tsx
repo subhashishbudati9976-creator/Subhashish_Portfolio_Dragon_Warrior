@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { sendZebxMessage } from '../../services/zebxApi';
+import { transcribeZebxAudio } from '../../services/zebxTranscriptionApi';
 
 interface ZebxMessage {
   id: string;
@@ -7,52 +8,7 @@ interface ZebxMessage {
   content: string;
 }
 
-interface SpeechRecognitionAlternativeLike {
-  transcript: string;
-}
-
-interface SpeechRecognitionResultLike {
-  isFinal: boolean;
-  [index: number]: SpeechRecognitionAlternativeLike;
-}
-
-interface SpeechRecognitionEventLike {
-  resultIndex: number;
-  results: {
-    length: number;
-    [index: number]: SpeechRecognitionResultLike;
-  };
-}
-
-interface SpeechRecognitionErrorEventLike {
-  error: string;
-  message?: string;
-}
-
-interface SpeechRecognitionLike {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  maxAlternatives: number;
-  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
-  onend: (() => void) | null;
-  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
-  onstart: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-}
-
-type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
-
-type SpeechStatus = 'idle' | 'listening' | 'stopped' | 'error' | 'unsupported';
+type SpeechStatus = 'idle' | 'recording' | 'transcribing' | 'error' | 'unsupported';
 
 const SUGGESTED_PROMPTS = [
   'Tell me about your projects',
@@ -95,8 +51,9 @@ export const AssistantHUD: React.FC = () => {
   const [speechMessage, setSpeechMessage] = useState('');
   const conversationRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
-  const speechBaseTextRef = useRef('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     const handleAssistantOpen = () => setExpanded(true);
@@ -104,96 +61,81 @@ export const AssistantHUD: React.FC = () => {
     return () => document.removeEventListener('portfolio:assistant:open', handleAssistantOpen);
   }, []);
 
-  useEffect(() => {
-    const Recognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    if (!Recognition) {
+  const cleanupRecording = () => {
+    mediaStreamRef.current?.getTracks().forEach(track => track.stop());
+    mediaStreamRef.current = null;
+    mediaRecorderRef.current = null;
+    audioChunksRef.current = [];
+  };
+
+  const stopRecording = () => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state === 'recording') recorder.stop();
+  };
+
+  const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
       setSpeechStatus('unsupported');
+      setSpeechMessage('Voice recording is not supported in this browser.');
       return;
     }
 
-    const recognition = new Recognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 1;
-    recognition.onstart = () => {
-      setSpeechStatus('listening');
-      setSpeechMessage('LISTENING');
-    };
-    recognition.onresult = event => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let index = 0; index < event.results.length; index += 1) {
-        const transcript = event.results[index][0]?.transcript ?? '';
-        if (event.results[index].isFinal) finalTranscript += transcript;
-        else interimTranscript += transcript;
-      }
-
-      const transcript = [speechBaseTextRef.current, finalTranscript, interimTranscript]
-        .map(value => value.trim())
-        .filter(Boolean)
-        .join(' ');
-      setInputText(transcript);
-    };
-    recognition.onerror = event => {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.error('[ZEBX SpeechRecognition]', {
-          event,
-          message: event.message ?? '',
-          error: event.error,
-        });
-      }
-      const messages: Record<string, string> = {
-        'not-allowed': 'Microphone permission was denied.',
-        'service-not-allowed': 'Speech input is not allowed in this browser.',
-        'no-speech': 'No speech was detected.',
-        'audio-capture': 'No microphone was detected.',
-        network: 'Speech input is temporarily unavailable.',
-        aborted: 'Voice input stopped.',
-      };
-      setSpeechStatus(event.error === 'aborted' ? 'stopped' : 'error');
-      setSpeechMessage(messages[event.error] ?? 'Voice input is unavailable.');
-    };
-    recognition.onend = () => {
-      setSpeechStatus(current => current === 'listening' ? 'stopped' : current);
-      setSpeechMessage(current => current === 'LISTENING' ? 'READY' : current);
-    };
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.onstart = null;
-      recognition.onresult = null;
-      recognition.onerror = null;
-      recognition.onend = null;
-      recognition.abort();
-      recognitionRef.current = null;
-    };
-  }, []);
-
-  const stopSpeechRecognition = () => {
-    recognitionRef.current?.stop();
-    setSpeechStatus('stopped');
-    setSpeechMessage('READY');
-  };
-
-  const toggleSpeechRecognition = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition || speechStatus === 'unsupported') return;
-    if (speechStatus === 'listening') {
-      stopSpeechRecognition();
-      return;
-    }
-
-    speechBaseTextRef.current = inputText.trim();
-    setSpeechMessage('STARTING');
     try {
-      recognition.start();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'].find(type => MediaRecorder.isTypeSupported(type)) ?? '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mediaStreamRef.current = stream;
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+      recorder.ondataavailable = event => {
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
+      };
+      recorder.onstop = async () => {
+        const audio = new Blob(audioChunksRef.current, { type: recorder.mimeType || mimeType || 'audio/webm' });
+        cleanupRecording();
+        if (!audio.size) {
+          setSpeechStatus('error');
+          setSpeechMessage('No audio was recorded.');
+          return;
+        }
+
+        setSpeechStatus('transcribing');
+        setSpeechMessage('TRANSCRIBING');
+        try {
+          const result = await transcribeZebxAudio(audio);
+          if (!result.text.trim()) throw new Error('Empty transcript.');
+          setInputText(result.text.trim());
+          setSpeechStatus('idle');
+          setSpeechMessage('TRANSCRIPT READY');
+        } catch {
+          setSpeechStatus('error');
+          setSpeechMessage('Voice transcription is unavailable right now.');
+        }
+      };
+      recorder.onerror = () => {
+        cleanupRecording();
+        setSpeechStatus('error');
+        setSpeechMessage('Voice recording failed.');
+      };
+      recorder.start();
+      setSpeechStatus('recording');
+      setSpeechMessage('RECORDING');
     } catch {
+      cleanupRecording();
       setSpeechStatus('error');
-      setSpeechMessage('Voice input could not start.');
+      setSpeechMessage('Microphone permission was denied.');
     }
   };
+
+  const toggleSpeechRecording = () => {
+    if (speechStatus === 'recording') stopRecording();
+    else if (speechStatus !== 'transcribing' && speechStatus !== 'unsupported') void startRecording();
+  };
+
+  useEffect(() => () => {
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+    cleanupRecording();
+  }, []);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -280,7 +222,7 @@ export const AssistantHUD: React.FC = () => {
               type="button"
               className="assistant-hud-close"
               onClick={() => {
-                stopSpeechRecognition();
+                stopRecording();
                 setExpanded(false);
               }}
               aria-label="Minimize assistant guide"
@@ -346,13 +288,13 @@ export const AssistantHUD: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className={`zebx-microphone-button${speechStatus === 'listening' ? ' is-listening' : ''}`}
-                  onClick={toggleSpeechRecognition}
-                  disabled={speechStatus === 'unsupported' || isThinking}
-                  aria-label={speechStatus === 'listening' ? 'Stop voice input' : 'Start voice input'}
+                  className={`zebx-microphone-button${speechStatus === 'recording' ? ' is-listening' : ''}`}
+                  onClick={toggleSpeechRecording}
+                  disabled={speechStatus === 'unsupported' || speechStatus === 'transcribing' || isThinking}
+                  aria-label={speechStatus === 'recording' ? 'Stop voice input' : 'Start voice input'}
                   title={speechStatus === 'unsupported' ? 'Voice input is not supported in this browser' : undefined}
                 >
-                  <span aria-hidden="true">{speechStatus === 'listening' ? '■' : 'MIC'}</span>
+                  <span aria-hidden="true">{speechStatus === 'recording' ? '■' : 'MIC'}</span>
                 </button>
                 <button
                   type="button"

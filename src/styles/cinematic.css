@@ -3414,8 +3414,8 @@
   color: var(--color-text-muted);
 }
 
-.zebx-speech-status-listening,
-.zebx-speech-status-starting {
+.zebx-speech-status-recording,
+.zebx-speech-status-transcribing {
   color: var(--color-accent-bright);
 }
 
