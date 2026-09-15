@@ -1,8 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '../components/Button';
-import { Badge } from '../components/Badge';
 
 export const HeroSection: React.FC = () => {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsReady(true), 160);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const scrollTo = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -10,43 +16,49 @@ export const HeroSection: React.FC = () => {
     }
   }, []);
 
+  const handleAssistantOpen = useCallback(() => {
+    if (typeof document !== 'undefined') {
+      document.dispatchEvent(
+        new CustomEvent('portfolio:assistant:open', {
+          detail: {
+            source: 'hero',
+            section: 'hero-cta-assistant',
+          },
+        }),
+      );
+    }
+  }, []);
+
   return (
-    <div className="hero-stage-layout page-container">
+    <div className={`hero-stage-layout page-container ${isReady ? 'hero-is-ready' : ''}`}>
       <div className="hero-stage-content">
-        {/* Eyebrow & Status */}
-        <div className="hero-eyebrow motion-reveal" data-motion-reveal="fade-up">
-          <Badge variant="crimson">CSE &bull; NEXT-GEN COMPUTATIONAL INTELLIGENCE</Badge>
-          <span className="hero-location-tag">
-            <span className="hero-status-pulse" aria-hidden="true" />
-            Hyderabad, India
-          </span>
+        <div className="hero-status-stack" aria-live="polite">
+          <span className="hero-system-line">SYSTEM // INITIALIZING</span>
+          <span className="hero-verified-line">IDENTITY VERIFIED</span>
         </div>
 
-        {/* Main Headline */}
-        <h1 className="hero-headline motion-reveal" data-motion-reveal="fade-up">
-          Subhashish Budati
+        <h1 className="hero-headline" aria-label="Subhashish Budati">
+          <span className="hero-name-block hero-name-primary">
+            <span>SUBHASHISH</span>
+          </span>
+          <span className="hero-name-block hero-name-secondary">
+            <span>BUDATI</span>
+          </span>
         </h1>
 
-        {/* Primary Positioning */}
-        <p className="hero-positioning motion-reveal" data-motion-reveal="fade-up">
-          Software Engineer / AI Developer
-        </p>
+        <p className="hero-discipline">CSE • AI APPLICATIONS • SOFTWARE ENGINEERING</p>
+        <p className="hero-tagline">Turning ideas into impact.</p>
 
-        {/* Supporting Text */}
-        <p className="hero-description motion-reveal" data-motion-reveal="fade-up">
-          Building practical software, AI applications, and developer-focused
-          systems with a strong interest in engineering, automation, and modern infrastructure.
-        </p>
-
-        {/* Primary CTAs — clean CSS hover without magnetic physics */}
-        <div className="hero-cta-group motion-reveal" data-motion-reveal="fade-up">
+        <div className="hero-cta-group">
           <Button
+            type="button"
             variant="primary"
             size="lg"
             onClick={() => scrollTo('projects')}
             id="hero-cta-projects"
+            className="hero-cta-btn"
           >
-            <span>View Projects</span>
+            <span>EXPLORE MY WORK</span>
             <svg
               className="btn-arrow-icon"
               width="14"
@@ -65,23 +77,42 @@ export const HeroSection: React.FC = () => {
           </Button>
 
           <Button
+            type="button"
             variant="secondary"
             size="lg"
-            onClick={() => scrollTo('contact')}
-            id="hero-cta-contact"
+            onClick={handleAssistantOpen}
+            id="hero-cta-assistant"
+            className="hero-cta-btn hero-cta-assistant"
           >
-            <span>Contact Me</span>
+            <span>MEET MY AI</span>
           </Button>
         </div>
 
-        {/* Cinematic Timeline Kicker */}
-        <div className="hero-timeline-kicker motion-reveal" data-motion-reveal="fade-up">
-          <span className="timeline-kicker-num">01 // STAGE</span>
-          <span className="timeline-kicker-title">Dormant Warrior &bull; Scroll to Awaken</span>
-        </div>
+        <button
+          type="button"
+          className="hero-scroll-indicator"
+          onClick={() => scrollTo('about')}
+          aria-label="Enter the journey"
+        >
+          <span className="hero-scroll-indicator-label">ENTER THE JOURNEY</span>
+          <span className="hero-scroll-indicator-arrow" aria-hidden="true">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v12" />
+              <path d="M6 17l6 6 6-6" />
+            </svg>
+          </span>
+        </button>
       </div>
 
-      {/* Right/center area is intentionally unoccupied — allows seated samurai to dominate the frame */}
       <div className="hero-stage-negative-space" aria-hidden="true" />
     </div>
   );

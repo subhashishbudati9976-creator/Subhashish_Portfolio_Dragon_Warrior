@@ -13,6 +13,7 @@ import { Footer } from './components/Footer';
 import { AssistantHUD } from './components/assistant/AssistantHUD';
 import { AudioController } from './components/audio/AudioController';
 import Aurora from './components/effects/Aurora';
+import { EnergyTrail } from './components/effects/EnergyTrail';
 import { useRevealObserver } from './hooks/useRevealObserver';
 
 export const App: React.FC = () => {
@@ -21,6 +22,9 @@ export const App: React.FC = () => {
 
   return (
     <div className="portfolio-app">
+      {/* Global Subtle Cinematic Energy Trail Overlay */}
+      <EnergyTrail />
+
       {/* Cinematic HUD Navigation */}
       <Nav />
 
