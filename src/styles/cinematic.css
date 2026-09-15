@@ -3299,6 +3299,7 @@
 }
 
 .zebx-prompt-chip:focus-visible,
+.zebx-microphone-button:focus-visible,
 .zebx-send-button:focus-visible,
 .zebx-input-shell textarea:focus-visible {
   outline: none;
@@ -3355,6 +3356,46 @@
   transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
 }
 
+.zebx-microphone-button {
+  flex: 0 0 auto;
+  min-width: 2.4rem;
+  height: 2rem;
+  padding: 0 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.zebx-microphone-button:hover:not(:disabled),
+.zebx-microphone-button:focus-visible {
+  border-color: rgba(229, 72, 77, 0.6);
+  color: var(--color-text-primary);
+}
+
+.zebx-microphone-button.is-listening {
+  border-color: var(--color-accent-bright);
+  background: rgba(198, 40, 61, 0.14);
+  color: var(--color-accent-bright);
+  box-shadow: 0 0 12px rgba(198, 40, 61, 0.22);
+  animation: zebx-microphone-pulse 1.1s ease-in-out infinite;
+}
+
+.zebx-microphone-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+@keyframes zebx-microphone-pulse {
+  0%,
+  100% { box-shadow: 0 0 8px rgba(198, 40, 61, 0.12); }
+  50% { box-shadow: 0 0 16px rgba(198, 40, 61, 0.35); }
+}
+
 .zebx-send-button:hover:not(:disabled) {
   border-color: var(--color-accent-bright);
   background: rgba(198, 40, 61, 0.18);
@@ -3363,6 +3404,23 @@
 .zebx-send-button:disabled {
   cursor: not-allowed;
   opacity: 0.35;
+}
+
+.zebx-speech-status {
+  min-height: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.zebx-speech-status-listening,
+.zebx-speech-status-starting {
+  color: var(--color-accent-bright);
+}
+
+.zebx-speech-status-error {
+  color: #f08a8a;
 }
 
 .zebx-input-cursor {
@@ -3418,7 +3476,8 @@
 @media (prefers-reduced-motion: reduce) {
   .zebx-interface,
   .zebx-interface .assistant-hud-close,
-  .zebx-thinking {
+  .zebx-thinking,
+  .zebx-microphone-button {
     animation: none;
     transition: none;
   }
