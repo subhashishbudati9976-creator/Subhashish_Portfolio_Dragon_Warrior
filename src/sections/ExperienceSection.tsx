@@ -55,6 +55,14 @@ const SKILL_GROUPS = [
   },
 ];
 
+const ARSENAL_INDEX = [
+  'PROGRAMMING',
+  'VERSION CONTROL',
+  'COMPUTER SCIENCE',
+  'AI + SOFTWARE',
+  'DEVOPS + DEPLOYMENT',
+];
+
 export const ExperienceSection: React.FC = () => {
   return (
     <div className="stage-3-layout page-container">
@@ -71,6 +79,37 @@ export const ExperienceSection: React.FC = () => {
           <p className="arsenal-subtitle motion-reveal" data-motion-reveal="fade-up">
             TOOLS OF THE CRAFT
           </p>
+
+          <div className="arsenal-statement motion-reveal" data-motion-reveal="fade-up">
+            <span>CODE.</span>
+            <span>BUILD.</span>
+            <span>DEBUG.</span>
+            <span>DEPLOY.</span>
+          </div>
+
+          <p className="arsenal-description motion-reveal" data-motion-reveal="fade-up">
+            Building practical systems through code, experimentation, and continuous refinement.
+          </p>
+
+          <div className="arsenal-index motion-reveal" data-motion-reveal="fade-up">
+            <div className="arsenal-index-heading">
+              <span className="arsenal-index-line" aria-hidden="true" />
+              <span>ARSENAL // 05</span>
+            </div>
+            <ol className="arsenal-index-list">
+              {ARSENAL_INDEX.map((item, index) => (
+                <li key={item}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <p className="arsenal-motto motion-reveal" data-motion-reveal="fade-up">
+            BUILD WITH PURPOSE.
+            <span>IMPROVE WITH EVERY ITERATION.</span>
+          </p>
         </div>
 
         <div className="stage-3-negative-space" aria-hidden="true" />
@@ -85,6 +124,7 @@ export const ExperienceSection: React.FC = () => {
                 style={{ '--motion-reveal-delay': `${index * 120}ms` } as React.CSSProperties}
               >
                 <div className="arsenal-group-header">
+                  <span className="arsenal-group-number">{String(index + 1).padStart(2, '0')}</span>
                   <span>{group.label}</span>
                 </div>
 

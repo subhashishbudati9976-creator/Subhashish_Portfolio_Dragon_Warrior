@@ -1,110 +1,145 @@
 import React from 'react';
-import StaggeredText from '../components/effects/StaggeredText';
-import { ProjectCard } from '../components/ProjectCard';
-import type { ProjectData } from '../types';
 
-const PROJECTS: ProjectData[] = [
-  {
-    id: 'ai-chatbot',
+interface Campaign {
+  id: string;
+  label: string;
+  year: string;
+  title: string;
+  subtitle?: string;
+  summary: string;
+  classifications: string[];
+  href: string | null;
+}
+
+const PROJECTS: Record<'chatbot' | 'oda' | 'rail', Campaign> = {
+  chatbot: {
+    id: '01',
+    label: 'PRIMARY CAMPAIGN',
     year: '2026',
-    type: 'academic',
-    title: 'Deployment of an AI-Driven Chatbot as a Virtual Assistant Using DevOps',
+    title: 'AI-DRIVEN CHATBOT',
+    subtitle: 'AS A VIRTUAL ASSISTANT',
     summary:
-      'An AI-driven virtual assistant engineered as an academic DevOps project. Integrates Google Gemini for natural-language conversational processing and features containerized architecture with reproducible CI/CD delivery pipelines.',
-    context:
-      'Engineered with a focus on deployment reliability, containerization discipline, environment configuration management, and systematic API error handling.',
-    contributions: [
-      'Integrated Google Gemini LLM API with optimized prompts and conversational context retention.',
-      'Containerized the entire application stack using Docker and Docker Compose for consistent multi-environment execution.',
-      'Designed automated CI/CD workflows for automated build checks and lint verification.',
-      'Diagnosed and resolved streaming response edge cases, environment variable isolation, and container health checks.',
-      'Documented complete architectural blueprints and deployment runbooks.',
-    ],
-    technologies: ['Python', 'Google Gemini', 'Docker', 'Docker Compose', 'CI/CD', 'API Integration'],
-    github: {
-      label: 'GitHub',
-      href: 'https://github.com/subhashishbudati9976-creator/AI-Driven-Chatbot-as-a-Virtual-Assistant',
-    },
-    live: { label: 'Live Demo', href: null },
-    featured: true,
+      'An AI-powered virtual assistant focused on conversational interaction and Google Gemini integration, developed with attention to user interaction, backend communication, conversation/session handling, deployment configuration, and engineering/debugging.',
+    classifications: ['AI APPLICATIONS', 'GEMINI INTEGRATION', 'DEPLOYMENT', 'CONTAINERIZATION', 'CI/CD'],
+    href: 'https://github.com/subhashishbudati9976-creator/AI-Driven-Chatbot-as-a-Virtual-Assistant',
   },
-  {
-    id: 'railway',
+  oda: {
+    id: '02',
+    label: 'ORBITAL COMMAND',
     year: '2026',
-    type: 'team',
-    title: 'Railway Reservation System',
+    title: 'ODA-CMS',
+    subtitle: 'ORBITAL DEBRIS AVOIDANCE CONSTELLATION MANAGEMENT SYSTEM',
     summary:
-      'A full-stack railway reservation and passenger management system featuring search algorithms, seat allocation, booking lifecycle management, fare calculation, and administration workflows.',
-    context:
-      'Built as an academic team project emphasizing robust relational schema design, transactional integrity, and clean interface workflows.',
-    contributions: [
-      'Engineered relational database models and queries supporting train schedules and seat availability.',
-      'Implemented front-end booking interfaces with input validation and state management.',
-      'Collaborated on system architecture and end-to-end user reservation journeys.',
-    ],
-    technologies: ['HTML', 'CSS', 'SQL', 'SQLite', 'Full-Stack Web'],
-    github: {
-      label: 'GitHub',
-      href: 'https://github.com/subhashishbudati9976-creator/RailReserve-Railway-Reservation-System',
-    },
-    live: { label: 'Live Demo', href: null },
-    featured: false,
+      'A full-stack platform for simulated satellite constellation monitoring, conjunction-threat analysis, avoidance decisions, and mission analytics.',
+    classifications: ['3D ORBITAL VISUALIZATION', 'ORBIT PROPAGATION', 'CONJUNCTION THREAT DETECTION', 'ALERTS', 'MISSION ANALYTICS'],
+    href: null,
   },
-  {
-    id: 'oda-cms',
+  rail: {
+    id: '03',
+    label: 'RAIL RESERVE',
     year: '2026',
-    type: 'team',
-    title: 'Orbital Debris Avoidance Constellation Management System (ODA-CMS)',
+    title: 'RAILWAY RESERVATION SYSTEM',
     summary:
-      'A high-complexity platform for simulated satellite constellation tracking, orbital propagation, conjunction threat detection, and automated avoidance decision analytics.',
-    context:
-      'Academic collaborative systems project combining 3D orbital mechanics visualization, spatial threat calculation, and mission operations analytics.',
-    contributions: [
-      'Contributed to data flow workflows and constellation telemetry representation.',
-      'Worked on interface layout and data-presentation clarity for mission alerts.',
-    ],
-    technologies: ['Full-Stack', 'Orbital Mechanics', '3D Visualisation', 'Data Analytics'],
-    github: { label: 'GitHub', href: null },
-    live: { label: 'Live Demo', href: null },
-    featured: false,
+      'A web-based railway reservation and management system covering train search, passenger management, booking, cancellation, schedules, payments, and administration.',
+    classifications: ['TRAIN SEARCH', 'BOOKING', 'CANCELLATION', 'PASSENGER MANAGEMENT', 'RELATIONAL DATA'],
+    href: 'https://github.com/subhashishbudati9976-creator/RailReserve-Railway-Reservation-System',
   },
-];
+};
+
+const ProjectLink: React.FC<{ project: Campaign }> = ({ project }) => (
+  project.href ? (
+    <a className="campaign-link" href={project.href} target="_blank" rel="noopener noreferrer">
+      <span>VIEW PROJECT</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  ) : (
+    <span className="campaign-link campaign-link-disabled" aria-disabled="true" title="Repository link not available">
+      <span>VIEW PROJECT</span>
+      <span aria-hidden="true">↗</span>
+    </span>
+  )
+);
+
+const ProjectVisual: React.FC<{ projectId: string; label: string }> = ({ projectId, label }) => (
+  <div className={`campaign-visual campaign-visual-${projectId}`} aria-label={`${label} dossier frame`}>
+    <span className="campaign-visual-corner campaign-visual-corner-top" aria-hidden="true" />
+    <span className="campaign-visual-corner campaign-visual-corner-bottom" aria-hidden="true" />
+    <span className="campaign-visual-line" aria-hidden="true" />
+    <span className="campaign-visual-label">MISSION DOSSIER // {label}</span>
+    <span className="campaign-visual-code">{projectId === '01' ? 'AI / GEMINI / CI-CD' : projectId === '02' ? 'ORBIT / ALERT / ANALYTICS' : 'RAIL / BOOK / DATA'}</span>
+  </div>
+);
+
+const CampaignMeta: React.FC<{ project: Campaign }> = ({ project }) => (
+  <div className="campaign-meta-line">
+    <span><b>{project.id}</b> / {project.label}</span>
+    <span>{project.year}</span>
+  </div>
+);
+
+const ClassificationList: React.FC<{ items: string[] }> = ({ items }) => (
+  <ul className="campaign-classifications" aria-label="Project classifications">
+    {items.map(item => <li key={item}>{item}</li>)}
+  </ul>
+);
 
 export const ProjectsSection: React.FC = () => {
   return (
     <div className="stage-4-layout page-container">
-      {/* Chapter Marker */}
-      <div className="stage-chapter-marker motion-reveal" data-motion-reveal="fade-up">
-        <span className="stage-chapter-num">04 // STAGE</span>
-        <span className="stage-chapter-title">Dragon Manifestation &bull; Selected Engineering &amp; Climax</span>
+      <div className="stage-chapter-marker motion-reveal campaigns-chapter" data-motion-reveal="fade-up">
+        <span className="stage-chapter-num">CHAPTER 03</span>
       </div>
 
-      {/* Section header with slow, premium staggered reveal */}
-      <div className="stage-4-header motion-reveal" data-motion-reveal="fade-up">
-        <div className="section-label">
-          <span className="type-eyebrow">Selected Work</span>
-        </div>
-        <h2 className="section-title">
-          <StaggeredText
-            text="Things I've Built"
-            delay={85}
-            duration={900}
-          />
-        </h2>
-        <p
-          className="type-body"
-          style={{ maxWidth: '600px', color: 'var(--color-text-muted)' }}
-        >
-          Practical projects spanning conversational AI, multi-container DevOps deployment,
-          and relational systems engineering.
-        </p>
+      <div className="campaigns-intro motion-reveal" data-motion-reveal="fade-up">
+        <p className="campaigns-kicker">THE CAMPAIGNS</p>
+        <h2 className="section-title campaigns-title">THINGS I HAVE BUILT.</h2>
+        <p className="campaigns-supporting">From AI-powered applications to systems built for real-world problems.</p>
       </div>
 
-      {/* Project cards — organized in lower/left negative space, keeping the dragon's head and wings unobstructed */}
-      <div className="stage-4-projects-grid">
-        {PROJECTS.map(project => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
+      <div className="campaigns-list">
+        <article className="campaign campaign-primary motion-reveal" data-motion-reveal="fade-up">
+          <CampaignMeta project={PROJECTS.chatbot} />
+          <div className="campaign-primary-heading">
+            <h3>{PROJECTS.chatbot.title}</h3>
+            <h4>{PROJECTS.chatbot.subtitle}</h4>
+          </div>
+          <ProjectVisual projectId={PROJECTS.chatbot.id} label="PRIMARY CAMPAIGN" />
+          <div className="campaign-primary-footer">
+            <ClassificationList items={PROJECTS.chatbot.classifications} />
+            <div className="campaign-copy-block">
+              <p>{PROJECTS.chatbot.summary}</p>
+              <ProjectLink project={PROJECTS.chatbot} />
+            </div>
+          </div>
+        </article>
+
+        <article className="campaign campaign-secondary campaign-oda motion-reveal" data-motion-reveal="fade-up">
+          <div className="campaign-secondary-copy">
+            <CampaignMeta project={PROJECTS.oda} />
+            <h3>{PROJECTS.oda.title}</h3>
+            <p>{PROJECTS.oda.summary}</p>
+            <ClassificationList items={PROJECTS.oda.classifications} />
+            <ProjectLink project={PROJECTS.oda} />
+          </div>
+          <ProjectVisual projectId={PROJECTS.oda.id} label="ORBITAL COMMAND" />
+        </article>
+
+        <article className="campaign campaign-secondary campaign-rail motion-reveal" data-motion-reveal="fade-up">
+          <ProjectVisual projectId={PROJECTS.rail.id} label="RAIL RESERVE" />
+          <div className="campaign-secondary-copy">
+            <CampaignMeta project={PROJECTS.rail} />
+            <h3>{PROJECTS.rail.title}</h3>
+            <p>{PROJECTS.rail.summary}</p>
+            <ClassificationList items={PROJECTS.rail.classifications} />
+            <ProjectLink project={PROJECTS.rail} />
+          </div>
+        </article>
+      </div>
+
+      <div className="campaigns-transition motion-reveal" data-motion-reveal="fade-up">
+        <span className="campaigns-transition-line" aria-hidden="true" />
+        <span>03 / CAMPAIGNS COMPLETE</span>
+        <span>NEXT // EXPERIENCE</span>
       </div>
     </div>
   );
