@@ -1,16 +1,15 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { generateZebxResponse } from './zebxGeminiProvider';
+import { generateZebxResponse, ZebxHttpError } from './zebxGeminiProvider';
 import type { ZebxChatRequest } from '../src/types/zebx';
 
 const MAX_BODY_BYTES = 64 * 1024;
 
 type NodeRequest = IncomingMessage & { body?: unknown };
+type NodeResponse = ServerResponse & { statusCode: number };
+type NextFn = (err?: unknown) => void;
 
-type NodeResponse = ServerResponse & {
-  statusCode: number;
-};
-
-const sendJson = (response: NodeResponse, statusCode: number, payload: unknown) => {
+const sendJson = (response: NodeResponse, statusCode: number, payload: unknown): void => {
+  if (response.headersSent) return;
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
   response.end(JSON.stringify(payload));
@@ -21,36 +20,44 @@ const readJsonBody = async (request: NodeRequest): Promise<unknown> => {
   let totalBytes = 0;
 
   for await (const chunk of request) {
-    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string);
     totalBytes += buffer.length;
     if (totalBytes > MAX_BODY_BYTES) {
-      throw new Error('Request body is too large.');
+      throw new ZebxHttpError(400, 'Request body is too large.');
     }
     chunks.push(buffer);
   }
 
   const rawBody = Buffer.concat(chunks).toString('utf8');
-  if (!rawBody) throw new Error('Request body is required.');
-  return JSON.parse(rawBody);
+  if (!rawBody.trim()) throw new ZebxHttpError(400, 'Request body is required.');
+
+  try {
+    return JSON.parse(rawBody);
+  } catch {
+    throw new ZebxHttpError(400, 'Request body must be valid JSON.');
+  }
 };
 
 const isZebxRequest = (payload: unknown): payload is ZebxChatRequest => {
   if (!payload || typeof payload !== 'object') return false;
-  const request = payload as Partial<ZebxChatRequest>;
-  return typeof request.message === 'string' && Array.isArray(request.history);
+  const req = payload as Partial<ZebxChatRequest>;
+  return typeof req.message === 'string' && Array.isArray(req.history);
 };
 
-export async function handleZebxChat(
+export function handleZebxChat(
   request: NodeRequest,
   response: NodeResponse,
-): Promise<void> {
+  next: NextFn,
+): void {
   if (request.method !== 'POST') {
     sendJson(response, 405, { error: 'Method not allowed.' });
     return;
   }
 
-  try {
+  // Wrap all async work so unhandled rejections never crash the Vite process
+  const run = async (): Promise<void> => {
     const payload = await readJsonBody(request);
+
     if (!isZebxRequest(payload)) {
       sendJson(response, 400, { error: 'A valid message and conversation history are required.' });
       return;
@@ -58,34 +65,21 @@ export async function handleZebxChat(
 
     const result = await generateZebxResponse(payload);
     sendJson(response, 200, result);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '';
+  };
 
-    if (message === 'Request body is too large.' || message === 'Request body is required.') {
-      sendJson(response, 400, { error: message });
+  run().catch((error: unknown) => {
+    // Route ZebxHttpError directly — status code is authoritative
+    if (error instanceof ZebxHttpError) {
+      sendJson(response, error.statusCode, { error: error.message });
       return;
     }
 
-    if (message === 'Unexpected token' || message.includes('JSON')) {
-      sendJson(response, 400, { error: 'Request body must be valid JSON.' });
-      return;
-    }
-
-    if (message === 'A non-empty message is required.' || message === 'The message is too long.' || message === 'The conversation history is invalid.') {
-      sendJson(response, 400, { error: message });
-      return;
-    }
-
-    if (message === 'ZEBX AI is not configured on the server.') {
-      sendJson(response, 503, { error: message });
-      return;
-    }
-
-    if (message === 'ZEBX AI returned an empty response.' || message === 'ZEBX AI could not complete the request.') {
-      sendJson(response, 502, { error: message });
-      return;
-    }
-
+    // Safety net: unexpected error — log sanitised message, never expose internals
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('[ZEBX] Unexpected handler error:', msg);
     sendJson(response, 500, { error: 'ZEBX AI encountered an unexpected server error.' });
-  }
+
+    // Pass to Vite/Connect error chain only when response is already sent or unsalvageable
+    if (typeof next === 'function') next(error);
+  });
 }

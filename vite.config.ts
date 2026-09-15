@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import type { Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { handleZebxChat } from './server/zebxChatHandler';
@@ -10,10 +10,15 @@ const zebxApiPlugin = (): Plugin => ({
   },
 });
 
-export default defineConfig({
-  plugins: [react(), zebxApiPlugin()],
-  server: {
-    port: 3000,
-    open: false,
-  },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  if (env.GEMINI_API_KEY) process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
+
+  return {
+    plugins: [react(), zebxApiPlugin()],
+    server: {
+      port: 3000,
+      open: false,
+    },
+  };
 });

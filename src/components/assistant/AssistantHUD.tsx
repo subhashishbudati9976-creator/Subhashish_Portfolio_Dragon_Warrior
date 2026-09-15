@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { sendZebxMessage } from '../../services/zebxApi';
 
 interface ZebxMessage {
   id: string;
@@ -13,10 +14,6 @@ const SUGGESTED_PROMPTS = [
   "What's your journey?",
   'What are you working on?',
 ];
-
-const PLACEHOLDER_RESPONSE = 'ZEBX AI is ready. The intelligence layer will be connected in the next phase.';
-
-const generatePlaceholderResponse = (): string => PLACEHOLDER_RESPONSE;
 
 /**
  * AssistantHUD — Extension Point & Architecture Shell
@@ -49,7 +46,6 @@ export const AssistantHUD: React.FC = () => {
   const [isThinking, setIsThinking] = useState(false);
   const conversationRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  const responseTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleAssistantOpen = () => setExpanded(true);
@@ -70,13 +66,14 @@ export const AssistantHUD: React.FC = () => {
     if (conversation) conversation.scrollTop = conversation.scrollHeight;
   }, [messages, isThinking]);
 
-  useEffect(() => () => {
-    if (responseTimeoutRef.current !== null) window.clearTimeout(responseTimeoutRef.current);
-  }, []);
-
-  const submitMessage = (message: string) => {
+  const submitMessage = async (message: string) => {
     const content = message.trim();
     if (!content || isThinking) return;
+
+    const history = messages.slice(-20).map(({ role, content: messageContent }) => ({
+      role,
+      content: messageContent,
+    }));
 
     setMessages(current => [
       ...current,
@@ -84,18 +81,33 @@ export const AssistantHUD: React.FC = () => {
     ]);
     setInputText('');
     setIsThinking(true);
-    responseTimeoutRef.current = window.setTimeout(() => {
+
+    try {
+      const response = await sendZebxMessage(content, history);
       setMessages(current => [
         ...current,
         {
           id: `zebx-assistant-${Date.now()}`,
           role: 'assistant',
-          content: generatePlaceholderResponse(),
+          content: response.message,
         },
       ]);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && err.message
+          ? err.message
+          : 'ZEBX AI could not respond right now. Please try again shortly.';
+      setMessages(current => [
+        ...current,
+        {
+          id: `zebx-error-${Date.now()}`,
+          role: 'assistant',
+          content: errorMessage,
+        },
+      ]);
+    } finally {
       setIsThinking(false);
-      responseTimeoutRef.current = null;
-    }, 700);
+    }
   };
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -198,7 +210,7 @@ export const AssistantHUD: React.FC = () => {
                 </button>
               </div>
               <div className="zebx-interface-footer">
-                <span>{isThinking ? 'TEMPORARY RESPONSE // STANDBY' : 'LOCAL PREVIEW // AI LAYER STANDBY'}</span>
+                <span>{isThinking ? 'PROCESSING // STANDBY' : 'GEMINI 3.5 FLASH // CONNECTED'}</span>
                 <span className="zebx-footer-signal"><i aria-hidden="true" />{isThinking ? 'THINKING' : 'READY'}</span>
               </div>
             </div>

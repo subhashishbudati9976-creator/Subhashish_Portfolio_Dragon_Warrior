@@ -13,11 +13,14 @@ export async function sendZebxMessage(
     body: JSON.stringify(request),
   });
 
+  const payload: unknown = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(`ZEBX chat request failed with status ${response.status}.`);
+    if (payload && typeof payload === 'object' && 'error' in payload && typeof payload.error === 'string') {
+      throw new Error(payload.error);
+    }
+    throw new Error('ZEBX AI could not complete the request.');
   }
 
-  const payload: unknown = await response.json();
   if (!payload || typeof payload !== 'object' || !('message' in payload) || typeof payload.message !== 'string') {
     throw new Error('ZEBX chat response was invalid.');
   }
