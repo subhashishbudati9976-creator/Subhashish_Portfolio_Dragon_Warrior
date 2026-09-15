@@ -5,6 +5,7 @@ import { HeroSection } from './sections/HeroSection';
 import { AboutSection } from './sections/AboutSection';
 import { ExperienceSection } from './sections/ExperienceSection';
 import { ProjectsSection } from './sections/ProjectsSection';
+import { FieldSection } from './sections/FieldSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { ActivitiesSection } from './sections/ActivitiesSection';
 import { ResumeCTA } from './components/ResumeCTA';
@@ -63,6 +64,8 @@ export const App: React.FC = () => {
             <ActivitiesSection />
             <ResumeCTA />
           </section>
+
+          <FieldSection />
         </div>
 
         {/* =====================================================================
