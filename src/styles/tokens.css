@@ -1,0 +1,267 @@
+/**
+ * SUBHASHISH PORTFOLIO DESIGN SYSTEM TOKENS
+ * Philosophy: Dark Cinematic Samurai-Dragon + Crimson & Charcoal Editorial
+ *
+ * Core Palette:
+ * - Primary accent:    #C6283D (Crimson)
+ * - Bright accent:     #E5484D (Bright ember/crimson)
+ * - Deep accent:       #6E1726 (Deep blood crimson)
+ * - Background:        #050506 (Pure obsidian dark)
+ * - Secondary bg:      #08090B (Deep charcoal)
+ * - Tertiary bg:       #0F1014 (Surface backing)
+ * - Primary text:      #F2F2F2 (Crisp near-white)
+ * - Secondary text:    #9A9A9F (Muted silver-grey)
+ * - Borders:           rgba(255, 255, 255, 0.08)
+ * - Crimson glow:      rgba(198, 40, 61, 0.20)
+ */
+
+:root {
+  /* ==========================================================================
+     1. COLOR SYSTEM: Backgrounds & Layers
+     ========================================================================== */
+  --color-bg-base:       #050506;    /* Pure obsidian canvas — deepest possible dark */
+  --color-bg-subtle:     #08090B;    /* Directional depth shift — barely perceptible warm charcoal */
+  --color-bg-secondary:  #08090B;    /* Structural section backing */
+  --color-bg-tertiary:   #0F1014;    /* Raised container backing — deep obsidian grey */
+  --color-bg-elevated:   #16171D;    /* Highest z-level: dropdowns, modals */
+
+  /*
+   * Atmospheric backdrop — subtle top ember glow bleed
+   */
+  --gradient-ambient-top: radial-gradient(
+    ellipse 80% 50% at 50% -10%,
+    rgba(198, 40, 61, 0.08) 0%,
+    rgba(110, 23, 38, 0.04) 45%,
+    transparent 70%
+  );
+
+  /*
+   * Subtle secondary warmth — lower-left crimson ember pool (dragon's shadow)
+   */
+  --gradient-ambient-depth: radial-gradient(
+    ellipse 60% 40% at 10% 90%,
+    rgba(198, 40, 61, 0.05) 0%,
+    transparent 60%
+  );
+
+  /*
+   * Accent rule lines — directional crimson ember separator
+   */
+  --gradient-rule-crimson: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(198, 40, 61, 0.6) 40%,
+    rgba(229, 72, 77, 0.4) 70%,
+    transparent 100%
+  );
+
+  /* Backwards compatibility token mapping */
+  --gradient-rule-blue: var(--gradient-rule-crimson);
+
+  /* ==========================================================================
+     2. COLOR SYSTEM: Text
+     ========================================================================== */
+  --color-text-primary:   #F2F2F2;   /* Crisp near-white — high contrast (>14:1) */
+  --color-text-secondary: #9A9A9F;   /* Body readable muted grey */
+  --color-text-muted:     #6E6E73;   /* Descriptions, timestamps */
+  --color-text-faint:     #444448;   /* Minor chrome: dividers, index numbers */
+  --color-text-inverse:   #050506;   /* Text on filled accent buttons */
+
+  /* ==========================================================================
+     3. COLOR SYSTEM: Accents (Crimson & Ember System)
+     ========================================================================== */
+  --color-accent-primary:      #C6283D;   /* Core crimson */
+  --color-accent-bright:       #E5484D;   /* Bright ember highlight */
+  --color-accent-deep:         #6E1726;   /* Deep blood crimson */
+  --color-accent-hover:        #E5484D;
+  --color-accent-subtle:       rgba(198, 40, 61, 0.12);
+  --color-accent-ghost:        rgba(198, 40, 61, 0.06);
+
+  /* Compatibility aliases for legacy component classes */
+  --color-accent-blue:         #C6283D;
+  --color-accent-blue-dim:     #6E1726;
+  --color-accent-blue-hover:   #E5484D;
+  --color-accent-blue-subtle:  rgba(198, 40, 61, 0.12);
+  --color-accent-blue-ghost:   rgba(198, 40, 61, 0.06);
+
+  --color-accent-violet:       #E5484D;
+  --color-accent-violet-dim:   #6E1726;
+  --color-accent-violet-hover: #ff6b70;
+  --color-accent-violet-subtle: rgba(229, 72, 77, 0.12);
+
+  /* Status */
+  --color-success:         #22c55e;
+  --color-success-subtle:  rgba(34, 197, 94, 0.12);
+  --color-warning:         #eab308;
+  --color-warning-subtle:  rgba(234, 179, 8, 0.12);
+  --color-error:           #E5484D;
+  --color-error-subtle:    rgba(229, 72, 77, 0.14);
+
+  /* ==========================================================================
+     4. SURFACE SYSTEM
+     ========================================================================== */
+  --surface-solid:       #08090B;             /* Opaque structural surface */
+  --surface-raised:      #0F1014;             /* Card elevation layer */
+  --surface-elevated:    #16171D;             /* Modal / floating layer */
+  --surface-inset:       #050506;             /* Recessed interior fields */
+  --surface-card:        rgba(15, 16, 20, 0.85);
+
+  --surface-glass:       rgba(8, 9, 11, 0.82); /* Selective morphic — nav only */
+  --surface-glass-filter: blur(16px) saturate(130%);
+
+  --surface-interactive:       rgba(255, 255, 255, 0.025);
+  --surface-interactive-hover: rgba(255, 255, 255, 0.05);
+
+  /* ==========================================================================
+     5. BORDERS
+     ========================================================================== */
+  --border-hairline:  rgba(255, 255, 255, 0.04);
+  --border-subtle:    rgba(255, 255, 255, 0.08);  /* Primary card border */
+  --border-default:   rgba(255, 255, 255, 0.12);
+  --border-hover:     rgba(198, 40, 61, 0.45);    /* Interactive crimson edge */
+  --border-accent:    rgba(229, 72, 77, 0.55);    /* Dragon / power highlight edge */
+  --border-active:    #C6283D;
+  --border-error:     rgba(229, 72, 77, 0.65);
+  --border-top-light: rgba(255, 255, 255, 0.10);
+
+  /* ==========================================================================
+     6. SHADOWS & ATMOSPHERIC GLOWS
+     ========================================================================== */
+  --shadow-xs:       0 1px 4px 0 rgba(0, 0, 0, 0.5);
+  --shadow-sm:       0 2px 10px -2px rgba(0, 0, 0, 0.65);
+  --shadow-md:       0 8px 28px -4px rgba(0, 0, 0, 0.75);
+  --shadow-lg:       0 20px 56px -8px rgba(0, 0, 0, 0.85);
+  --shadow-elevated: 0 28px 72px -10px rgba(0, 0, 0, 0.95);
+
+  /* Crimson & Ember Glows */
+  --glow-crimson:     0 0 24px -4px rgba(198, 40, 61, 0.20);
+  --glow-crimson-sm:  0 0 16px -3px rgba(198, 40, 61, 0.24);
+  --glow-crimson-md:  0 0 36px -6px rgba(198, 40, 61, 0.28);
+  --glow-crimson-xs:  0 0 10px -2px rgba(198, 40, 61, 0.18);
+
+  /* Legacy glow mappings */
+  --glow-blue-xs:     var(--glow-crimson-xs);
+  --glow-blue-sm:     var(--glow-crimson-sm);
+  --glow-blue-md:     var(--glow-crimson-md);
+  --glow-violet-xs:   var(--glow-crimson-xs);
+  --glow-violet-sm:   var(--glow-crimson-sm);
+  --glow-violet-md:   var(--glow-crimson-md);
+
+  /* Inset top-rim */
+  --glow-rim-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+  /* ==========================================================================
+     7. SPACING
+     ========================================================================== */
+  --space-1:  0.25rem;    /*  4px */
+  --space-2:  0.5rem;     /*  8px */
+  --space-3:  0.75rem;    /* 12px */
+  --space-4:  1rem;       /* 16px */
+  --space-5:  1.25rem;    /* 20px */
+  --space-6:  1.5rem;     /* 24px */
+  --space-8:  2rem;       /* 32px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-12: 3rem;       /* 48px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  --space-32: 8rem;       /* 128px */
+
+  /* ==========================================================================
+     8. TYPOGRAPHY
+     ========================================================================== */
+  --font-display: 'Syne', sans-serif;
+  --font-sans:    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+
+  /* Sizes */
+  --text-xs:      0.6875rem;   /* 11px */
+  --text-sm:      0.8125rem;   /* 13px */
+  --text-base:    1rem;        /* 16px */
+  --text-lg:      1.125rem;    /* 18px */
+  --text-xl:      1.25rem;     /* 20px */
+  --text-2xl:     1.5rem;      /* 24px */
+  --text-3xl:     1.875rem;    /* 30px */
+  --text-4xl:     2.5rem;      /* 40px */
+  --text-display: clamp(2.75rem, 5vw + 0.75rem, 4.5rem);
+
+  /* Line heights */
+  --leading-tight:   1.1;
+  --leading-snug:    1.2;
+  --leading-normal:  1.55;
+  --leading-relaxed: 1.72;
+
+  /* Letter spacing */
+  --tracking-tight:   -0.025em;
+  --tracking-snug:    -0.012em;
+  --tracking-normal:   0em;
+  --tracking-wide:     0.04em;
+  --tracking-eyebrow:  0.16em;
+
+  /* Weights */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-black:    800;
+
+  /* ==========================================================================
+     9. CORNER RADII
+     ========================================================================== */
+  --radius-none: 0px;
+  --radius-xs:   2px;
+  --radius-sm:   5px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     10. MOTION
+     ========================================================================== */
+  --duration-instant:   80ms;
+  --duration-fast:      160ms;
+  --duration-base:      260ms;
+  --duration-smooth:    420ms;
+  --duration-cinematic: 700ms;
+
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --motion-lift-y:     -2px;
+  --motion-scale-hover: 1.012;
+  --motion-reveal-distance: 18px;
+  --motion-reveal-duration: 620ms;
+  --motion-reveal-stagger: 90ms;
+
+  /* ==========================================================================
+     11. LAYOUT & CONTAINERS
+     ========================================================================== */
+  --container-max:    1200px;
+  --container-narrow: 820px;
+  --gutter-mobile:    1.25rem;
+  --gutter-tablet:    2rem;
+  --gutter-desktop:   2.5rem;
+
+  /* ==========================================================================
+     12. FOCUS & ACCESSIBILITY
+     ========================================================================== */
+  --focus-ring: 0 0 0 2px var(--color-bg-base), 0 0 0 4px var(--color-accent-bright);
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant:   0.01ms;
+    --duration-fast:      0.01ms;
+    --duration-base:      0.01ms;
+    --duration-smooth:    0.01ms;
+    --duration-cinematic: 0.01ms;
+    --motion-lift-y:      0px;
+    --motion-scale-hover: 1;
+    --motion-reveal-distance: 0px;
+    --motion-reveal-duration: 0.01ms;
+    --motion-reveal-stagger: 0ms;
+  }
+}

@@ -1,0 +1,135 @@
+/**
+ * SURFACE SYSTEM
+ * Philosophy: Heavy, solid-first obsidian surfaces.
+ * Glass is a reserved exception — only for floating nav and modal overlays.
+ * Rounded corners are editorial-sharp: radius-sm for cards, radius-lg max for containers.
+ */
+
+/* ==========================================================================
+   Base Surface — Structural card, section, and container backing
+   ========================================================================== */
+
+.surface-card {
+  position: relative;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-top-color: var(--border-top-light);
+  border-radius: var(--radius-sm);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm), var(--glow-rim-top);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+
+.surface-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md), var(--glow-crimson-xs), var(--glow-rim-top);
+  transform: translateY(var(--motion-lift-y));
+}
+
+/* ==========================================================================
+   Elevated Surface — Modal-level, nested containers, deeper z-depth
+   ========================================================================== */
+
+.surface-elevated {
+  position: relative;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-top-color: var(--border-top-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-md), var(--glow-rim-top);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+
+.surface-elevated:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lg), var(--glow-crimson-xs), var(--glow-rim-top);
+}
+
+/* ==========================================================================
+   Inset Surface — Form fields, recessed interior panels
+   ========================================================================== */
+
+.surface-inset {
+  position: relative;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  box-shadow: inset 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   Glass Surface — Reserved: floating nav bar, modal overlays ONLY
+   ========================================================================== */
+
+.surface-glass {
+  position: relative;
+  background: var(--surface-glass);
+  backdrop-filter: var(--surface-glass-filter);
+  -webkit-backdrop-filter: var(--surface-glass-filter);
+  border: 1px solid var(--border-subtle);
+  border-top-color: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-full);   /* Pill shape — nav-specific */
+  padding: var(--space-2) var(--space-3);
+  box-shadow: var(--shadow-sm), var(--glow-rim-top);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.surface-glass:hover {
+  border-color: rgba(198, 40, 61, 0.35);
+  box-shadow: var(--shadow-md), var(--glow-crimson-xs), var(--glow-rim-top);
+}
+
+/* ==========================================================================
+   Section Container — Full-width structural backing, no hover effect
+   ========================================================================== */
+
+.surface-section {
+  position: relative;
+  background: var(--surface-solid);
+  border-top: 1px solid var(--border-hairline);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+/* ==========================================================================
+   Accent Glow Modifiers — Applied sparingly; not the default state
+   ========================================================================== */
+
+.surface-glow-crimson,
+.surface-glow-blue {
+  border-color: rgba(198, 40, 61, 0.35);
+  box-shadow: var(--shadow-md), var(--glow-crimson-sm);
+}
+
+.surface-glow-ember,
+.surface-glow-violet {
+  border-color: rgba(229, 72, 77, 0.35);
+  box-shadow: var(--shadow-md), var(--glow-crimson-sm);
+}
+
+/* ==========================================================================
+   Accent Edge Rule — Single horizontal light-line at top of key surfaces
+   Used as a ::after on section headers or hero elements.
+   ========================================================================== */
+
+.surface-rule-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 1px;
+  background: var(--gradient-rule-crimson);
+  pointer-events: none;
+  opacity: 0.7;
+}

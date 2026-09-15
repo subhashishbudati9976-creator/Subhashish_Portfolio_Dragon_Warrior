@@ -1,0 +1,1085 @@
+/**
+ * CINEMATIC ARCHITECTURE & TIMELINE STYLES
+ * Subhashish Budati — Developer Portfolio
+ *
+ * Full-page continuous scroll timeline driven by samurai-dragon video asset.
+ * Pure Obsidian, Charcoal, Crimson & Ember color system.
+ */
+
+/* ==========================================================================
+   1. FULL-PAGE CONTINUOUS TIMELINE CONTAINER & FIXED VIDEO BACKDROP
+   ========================================================================== */
+
+.cinematic-timeline-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Pinned full-viewport layer behind all stages */
+.fullpage-cinematic-stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--color-bg-base);
+}
+
+/* Fallback / Instant Poster */
+.cinematic-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}
+
+.cinematic-poster.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Native 1920x1080 60fps Scrub-Optimized Video Element */
+.cinematic-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+.cinematic-video.is-ready {
+  opacity: 1;
+}
+
+/*
+ * Restrained Directional Vignette
+ * Preserves high video visibility while providing text contrast on the left side.
+ * Center, right warrior, and dragon head remain punchy and clear.
+ */
+.cinematic-subtle-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    /* Directional text backing gradient on left side */
+    linear-gradient(
+      90deg,
+      rgba(5, 5, 6, 0.78) 0%,
+      rgba(5, 5, 6, 0.50) 38%,
+      rgba(5, 5, 6, 0.10) 65%,
+      rgba(5, 5, 6, 0.38) 100%
+    ),
+    /* Subtle top & bottom edge shading */
+    linear-gradient(
+      180deg,
+      rgba(5, 5, 6, 0.65) 0%,
+      transparent 14%,
+      transparent 86%,
+      rgba(5, 5, 6, 0.75) 100%
+    );
+}
+
+/* Subtle atmospheric grain */
+.cinematic-subtle-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0.035;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Base Stage Container */
+.cinematic-stage {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+/* ==========================================================================
+   2. STAGE 1: SEATED SAMURAI (0–8s) — HERO INTRODUCTION
+   Primary hero text strongly on LEFT. Right/center open for seated warrior.
+   ========================================================================== */
+
+.stage-1-stage {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding: calc(var(--space-20) + 2rem) 0 var(--space-16) 0;
+}
+
+.hero-stage-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hero-stage-content {
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  z-index: 2;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.hero-location-tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: var(--tracking-wide);
+}
+
+.hero-status-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  display: inline-block;
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 5.5vw + 0.5rem, 4.8rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.hero-positioning {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-accent-bright);
+  letter-spacing: var(--tracking-wide);
+}
+
+.hero-description {
+  font-size: var(--text-lg);
+  line-height: 1.62;
+  color: var(--color-text-secondary);
+  max-width: 520px;
+}
+
+.hero-cta-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.hero-timeline-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding: 0.4rem 0.85rem;
+  background: rgba(8, 9, 11, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 2.5px solid var(--color-accent-primary);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.timeline-kicker-num {
+  color: var(--color-accent-bright);
+  font-weight: 600;
+}
+
+.timeline-kicker-title {
+  color: var(--color-text-secondary);
+}
+
+/* Center-right intentionally empty for seated warrior dominance */
+.hero-stage-negative-space {
+  flex: 1;
+  min-width: 320px;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   3. STAGE 2: RED-EYE AWAKENING (8–16s) — IDENTITY & FOUNDATIONS
+   Asymmetric editorial layout. Negative space keeps warrior face & eye clear.
+   ========================================================================== */
+
+.stage-2-stage {
+  min-height: 115vh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-24) 0;
+}
+
+.stage-2-layout {
+  width: 100%;
+}
+
+.stage-chapter-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.35rem 0.8rem;
+  background: rgba(8, 9, 11, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 2.5px solid var(--color-accent-primary);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
+}
+
+.stage-chapter-num {
+  color: var(--color-accent-bright);
+  font-weight: 600;
+}
+
+.stage-chapter-title {
+  color: var(--color-text-secondary);
+}
+
+/* 3-column asymmetric layout: Left Content | Negative Space | Right Credentials */
+.stage-2-editorial-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.5fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.stage-2-bio-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.about-bio-paragraph {
+  font-size: var(--text-base);
+  line-height: 1.68;
+  color: var(--color-text-secondary);
+}
+
+.about-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.about-personal-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0.28rem 0.6rem;
+  background: rgba(15, 16, 20, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+}
+
+/* Negative space column: preserves clear sightline to warrior face & red eye */
+.stage-2-center-space {
+  min-height: 150px;
+  pointer-events: none;
+}
+
+.stage-2-credentials-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.education-card {
+  background: rgba(15, 16, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  padding: var(--space-6);
+}
+
+.education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.education-reg-badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-accent-bright);
+  background: rgba(198, 40, 61, 0.15);
+  border: 1px solid rgba(198, 40, 61, 0.3);
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-xs);
+}
+
+.about-detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-5) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.about-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding-bottom: var(--space-2);
+}
+
+.about-detail-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.about-detail-value {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  text-align: right;
+}
+
+.about-detail-value.highlight {
+  color: var(--color-accent-bright);
+  font-weight: 600;
+}
+
+.cgpa-accent {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: #FFFFFF;
+  text-shadow: 0 0 8px rgba(198, 40, 61, 0.6);
+}
+
+.cgpa-scale {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+.education-divider {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: var(--space-4) 0;
+}
+
+.coursework-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.coursework-item {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.coursework-bullet {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  flex-shrink: 0;
+}
+
+.stage-2-focus-box {
+  background: rgba(15, 16, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: var(--space-5);
+}
+
+.about-focus-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.about-focus-item {
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.about-focus-bullet {
+  color: var(--color-accent-bright);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   4. STAGE 3: CRIMSON RESONANCE (16–24s) — EXPERIENCE & MINDSET
+   Left timeline + negative space to keep katana and crimson energy visible.
+   ========================================================================== */
+
+.stage-3-stage {
+  min-height: 115vh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-24) 0;
+}
+
+.stage-3-layout {
+  width: 100%;
+}
+
+.stage-3-content-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.5fr 0.95fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.stage-3-timeline-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stage-3-negative-space {
+  min-height: 150px;
+  pointer-events: none;
+}
+
+.stage-3-principles-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.principles-card {
+  background: rgba(15, 16, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  padding: var(--space-6);
+}
+
+.principles-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.principle-entry-title {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.principle-entry-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent-primary);
+  border-radius: 1px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.principle-entry-desc {
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   5. STAGE 4: DRAGON MANIFESTATION (24–32s) — CLIMAX
+   Strongest portfolio content: Projects, Skills, Activities, Resume CTA.
+   Lower/left placement keeps dragon head and wings completely visible.
+   ========================================================================== */
+
+.stage-4-stage {
+  min-height: 140vh;
+  padding: var(--space-24) 0 var(--space-16) 0;
+}
+
+.stage-4-layout {
+  width: 100%;
+}
+
+.stage-4-header {
+  max-width: 680px;
+  margin-bottom: var(--space-10);
+}
+
+.stage-4-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+}
+
+/* Translucent Project Card */
+.project-card {
+  position: relative;
+  background: rgba(15, 16, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  padding: var(--space-6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.project-card:hover {
+  border-color: rgba(198, 40, 61, 0.45);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(198, 40, 61, 0.20);
+  transform: translateY(-2px);
+}
+
+.project-card.featured-card {
+  border-color: rgba(198, 40, 61, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(198, 40, 61, 0.15);
+}
+
+/* ==========================================================================
+   6. CONTACT TRANSITION & AMBIENT AURORA
+   Smoothly transitions from Stage 4 dragon climax into final contact area.
+   ========================================================================== */
+
+.contact-transition-wrapper {
+  position: relative;
+  z-index: 20;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 5, 6, 0.85) 0%,
+    #050506 180px,
+    #050506 100%
+  );
+  box-shadow: 0 -30px 60px rgba(5, 5, 6, 0.95);
+  padding-top: var(--space-16);
+}
+
+/* ==========================================================================
+   7. MINIMAL CINEMATIC HUD NAVIGATION
+   ========================================================================== */
+
+.cinematic-hud-nav {
+  position: fixed;
+  top: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.hud-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.35rem 0.65rem 0.35rem 1rem;
+  background: rgba(8, 9, 11, 0.88);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.hud-nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  padding-right: var(--space-2);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-brand-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 6px var(--color-accent-bright);
+}
+
+.hud-brand-text {
+  color: var(--color-text-primary);
+}
+
+.hud-nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.hud-nav-link {
+  position: relative;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.hud-nav-link:hover {
+  color: var(--color-text-primary);
+}
+
+.hud-nav-link.is-active {
+  color: var(--color-accent-bright);
+  font-weight: 600;
+}
+
+.hud-active-line {
+  position: absolute;
+  bottom: -2px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--color-accent-bright);
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(229, 72, 77, 0.7);
+}
+
+.hud-mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ==========================================================================
+   8. PERSONAL AI ASSISTANT HUD (EXTENSION POINT SHELL)
+   ========================================================================== */
+
+.assistant-hud-container {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-5);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-3);
+  pointer-events: auto;
+}
+
+.assistant-hud-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 0.85rem;
+  background: rgba(8, 9, 11, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.assistant-hud-capsule:hover,
+.assistant-hud-capsule.is-active {
+  border-color: rgba(198, 40, 61, 0.45);
+  box-shadow: 0 4px 20px rgba(198, 40, 61, 0.20);
+  transform: translateY(-1px);
+}
+
+.assistant-waveform {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5px;
+  height: 12px;
+}
+
+.assistant-waveform .wave-bar {
+  width: 2px;
+  background: var(--color-accent-bright);
+  border-radius: 1px;
+}
+
+.assistant-waveform .bar-1 { height: 6px; }
+.assistant-waveform .bar-2 { height: 11px; }
+.assistant-waveform .bar-3 { height: 8px; }
+
+.assistant-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 6px var(--color-accent-bright);
+}
+
+.assistant-hud-panel {
+  width: 320px;
+  background: rgba(15, 16, 20, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(198, 40, 61, 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(198, 40, 61, 0.15);
+  animation: assistantFadeIn 0.25s var(--ease-out);
+}
+
+@keyframes assistantFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.assistant-hud-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.assistant-hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-accent-bright);
+  letter-spacing: 0.05em;
+}
+
+.hud-ember-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-bright);
+  box-shadow: 0 0 6px rgba(229, 72, 77, 0.8);
+}
+
+.assistant-hud-close {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.assistant-hud-close:hover {
+  color: var(--color-text-primary);
+}
+
+.assistant-hud-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.assistant-hud-text {
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.assistant-capabilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.assistant-cap-item {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.cap-indicator {
+  color: var(--color-accent-bright);
+}
+
+.assistant-hud-footer-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-faint);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: var(--space-2);
+}
+
+/* ==========================================================================
+   9. ATMOSPHERIC AUDIO CONTROLLER HUD (EXTENSION POINT SHELL)
+   ========================================================================== */
+
+.audio-controller-hud {
+  position: fixed;
+  bottom: var(--space-5);
+  left: var(--space-5);
+  z-index: 95;
+  pointer-events: auto;
+}
+
+.audio-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 0.85rem;
+  background: rgba(8, 9, 11, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.audio-toggle-btn:hover,
+.audio-toggle-btn.is-playing {
+  border-color: rgba(198, 40, 61, 0.45);
+  color: var(--color-text-primary);
+  transform: translateY(-1px);
+}
+
+.audio-bars-icon {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.audio-bars-icon .bar {
+  width: 2px;
+  background: var(--color-text-muted);
+  border-radius: 1px;
+}
+
+.audio-toggle-btn.is-playing .audio-bars-icon .bar {
+  background: var(--color-accent-bright);
+}
+
+.audio-bars-icon .b1 { height: 4px; }
+.audio-bars-icon .b2 { height: 8px; }
+.audio-bars-icon .b3 { height: 12px; }
+.audio-bars-icon .b4 { height: 6px; }
+
+.audio-bars-icon .bar.animate {
+  animation: audioPulse 0.8s ease-in-out infinite alternate;
+}
+.audio-bars-icon .b1.animate { animation-delay: 0.1s; }
+.audio-bars-icon .b2.animate { animation-delay: 0.3s; }
+.audio-bars-icon .b3.animate { animation-delay: 0.2s; }
+.audio-bars-icon .b4.animate { animation-delay: 0.4s; }
+
+@keyframes audioPulse {
+  from { height: 3px; }
+  to   { height: 12px; }
+}
+
+.audio-btn-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.audio-volume-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.4rem 0.75rem;
+  background: rgba(15, 16, 20, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(198, 40, 61, 0.35);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  animation: assistantFadeIn 0.2s ease-out;
+}
+
+.audio-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 70px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.audio-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent-bright);
+  box-shadow: 0 0 6px var(--color-accent-bright);
+  cursor: pointer;
+}
+
+.audio-volume-percent {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  min-width: 26px;
+  text-align: right;
+}
+
+/* ==========================================================================
+   10. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .stage-2-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .stage-2-center-space {
+    display: none;
+  }
+
+  .stage-3-content-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .stage-3-negative-space {
+    display: none;
+  }
+
+  .hero-stage-layout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-stage-negative-space {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hud-nav-links {
+    display: none;
+  }
+
+  .hud-mobile-toggle {
+    display: flex;
+  }
+
+  .stage-1-stage,
+  .stage-2-stage,
+  .stage-3-stage {
+    min-height: auto;
+    padding: calc(var(--space-16) + 1rem) 0 var(--space-12) 0;
+  }
+
+  .assistant-hud-panel {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 60px;
+  }
+
+  .audio-controller-hud {
+    bottom: var(--space-4);
+    left: var(--space-4);
+  }
+
+  .assistant-hud-container {
+    bottom: var(--space-4);
+    right: var(--space-4);
+  }
+}

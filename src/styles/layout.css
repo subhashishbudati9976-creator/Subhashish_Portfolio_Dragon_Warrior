@@ -1,0 +1,179 @@
+/**
+ * LAYOUT FOUNDATION & RESPONSIVE GRID SYSTEM
+ */
+
+/* ==========================================================================
+   Page & Section Containers
+   ========================================================================== */
+
+.page-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--gutter-desktop);
+  padding-right: var(--gutter-desktop);
+  position: relative;
+  z-index: 1;
+}
+
+.page-container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--gutter-desktop);
+  padding-right: var(--gutter-desktop);
+}
+
+.section-wrapper {
+  padding-top: var(--space-20);
+  padding-bottom: var(--space-20);
+  position: relative;
+}
+
+.section-wrapper-compact {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+}
+
+.section-header {
+  margin-bottom: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ==========================================================================
+   Responsive Grid & Flex Utilities
+   ========================================================================== */
+
+/* 12-column desktop grid */
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-6);
+}
+
+/* Common symmetric grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+}
+
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-6);
+}
+
+/* Flex rows and columns */
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* Spacing gaps */
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+
+/* Horizontal Dividers */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
+  border: none;
+}
+
+.divider-accent {
+  width: 100%;
+  height: 1px;
+  background: var(--gradient-rule-blue);
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-10);
+  border: none;
+}
+
+/* ==========================================================================
+   Tablet Adaptations (<= 1024px)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .page-container,
+  .page-container-narrow {
+    padding-left: var(--gutter-tablet);
+    padding-right: var(--gutter-tablet);
+  }
+
+  .section-wrapper {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Mobile Adaptations (<= 768px)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .page-container,
+  .page-container-narrow {
+    padding-left: var(--gutter-mobile);
+    padding-right: var(--gutter-mobile);
+  }
+
+  .section-wrapper {
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
+  }
+
+  .grid-12,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .section-header {
+    margin-bottom: var(--space-8);
+  }
+}
