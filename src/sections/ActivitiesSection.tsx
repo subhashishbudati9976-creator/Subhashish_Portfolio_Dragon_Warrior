@@ -1,4 +1,5 @@
 import React from 'react';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 
 interface ActivityItem {
   id: string;
@@ -72,7 +73,7 @@ export const ActivitiesSection: React.FC = () => {
           <span className="type-eyebrow">Leadership &amp; Distinction</span>
         </div>
         <h2 className="section-title" id="activities-heading">
-          Beyond the Code
+          <CinematicSplitText lines={['BEYOND THE CODE']} splitType="words" />
         </h2>
         <p className="type-body" style={{ maxWidth: '560px', color: 'var(--color-text-muted)' }}>
           Extracurricular leadership, technical workshop organizing, and personal creative pursuits
@@ -94,7 +95,9 @@ export const ActivitiesSection: React.FC = () => {
             <div className="activity-card-header">
               <span className="activity-category-tag">{item.category}</span>
             </div>
-            <h3 className="activity-title">{item.title}</h3>
+            <h3 className="activity-title">
+              <CinematicSplitText lines={[item.title]} splitType="words" duration={0.8} stagger={0.08} />
+            </h3>
             <p className="activity-role">{item.role}</p>
             <p className="activity-desc">{item.description}</p>
           </article>

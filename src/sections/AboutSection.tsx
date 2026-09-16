@@ -1,4 +1,5 @@
 import React from 'react';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 
 const ACADEMIC_FOUNDATION = [
   'Data Structures',
@@ -21,18 +22,17 @@ export const AboutSection: React.FC = () => {
   return (
     <div className="stage-2-layout page-container">
       <div className="stage-chapter-marker motion-reveal about-chapter-marker" data-motion-reveal="fade-up">
-        <span className="stage-chapter-num">CHAPTER 01</span>
+        <span className="stage-chapter-num"><CinematicSplitText lines={['CHAPTER 01']} splitType="words" /></span>
       </div>
 
       <div className="stage-2-editorial-grid">
         <div className="stage-2-bio-column">
           <div className="about-journey-label motion-reveal" data-motion-reveal="fade-up">
-            <span>THE JOURNEY</span>
+            <CinematicSplitText lines={['THE JOURNEY']} splitType="words" />
           </div>
 
           <h2 className="section-title about-journey-title motion-reveal" data-motion-reveal="fade-up">
-            BUILDING WITH CURIOSITY.
-            <span className="about-title-break">LEARNING BY DOING.</span>
+            <CinematicSplitText lines={['BUILDING WITH CURIOSITY.', 'LEARNING BY DOING.']} />
           </h2>
 
           <p className="about-bio-paragraph motion-reveal" data-motion-reveal="fade-up">
@@ -89,7 +89,7 @@ export const AboutSection: React.FC = () => {
           </div>
 
           <div className="about-info-block">
-            <span className="about-info-label">BEYOND THE CODE</span>
+            <span className="about-info-label"><CinematicSplitText lines={['BEYOND THE CODE']} splitType="words" /></span>
             <div className="about-personal-dimension">
               <span>Raghavarsha Club</span>
               <span>Beatboxing</span>

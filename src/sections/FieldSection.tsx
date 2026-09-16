@@ -1,4 +1,5 @@
 import React from 'react';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 
 const FIELD_DETAILS = [
   { label: 'STATUS', value: 'ONGOING' },
@@ -15,13 +16,14 @@ export const FieldSection: React.FC = () => {
       <div className="field-layout page-container">
         <div className="field-intro">
           <div className="stage-chapter-marker motion-reveal field-chapter" data-motion-reveal="fade-up">
-            <span className="stage-chapter-num">CHAPTER 04</span>
+            <span className="stage-chapter-num"><CinematicSplitText lines={['CHAPTER 04']} splitType="words" /></span>
           </div>
 
-          <p className="field-kicker motion-reveal" data-motion-reveal="fade-up">THE FIELD</p>
+          <p className="field-kicker motion-reveal" data-motion-reveal="fade-up">
+            <CinematicSplitText lines={['THE FIELD']} splitType="words" />
+          </p>
           <h2 className="field-title motion-reveal" data-motion-reveal="fade-up">
-            WHERE I AM
-            <span>HEADED.</span>
+            <CinematicSplitText lines={['WHERE I AM', 'HEADED.']} />
           </h2>
           <p className="field-supporting motion-reveal" data-motion-reveal="fade-up">
             Moving from academic experimentation into professional engineering.
@@ -51,7 +53,7 @@ export const FieldSection: React.FC = () => {
           </div>
 
           <div className="field-briefing-title">
-            <h3>SHADOWFOX</h3>
+            <h3><CinematicSplitText lines={['SHADOWFOX']} splitType="words" /></h3>
             <p>FULL-STACK DEVELOPER INTERN</p>
           </div>
 

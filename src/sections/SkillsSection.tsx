@@ -1,5 +1,6 @@
 import React from 'react';
 import { SkillBadge } from '../components/SkillBadge';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 import type { SkillCategory } from '../types';
 
 /* Confirmed personal technical skill categories */
@@ -67,7 +68,7 @@ export const SkillsSection: React.FC = () => {
           <span className="type-eyebrow">Technical Capability</span>
         </div>
         <h2 className="section-title" id="skills-heading">
-          Skills &amp; Tooling
+          <CinematicSplitText lines={['SKILLS & TOOLING']} splitType="words" />
         </h2>
         <p
           className="type-body"

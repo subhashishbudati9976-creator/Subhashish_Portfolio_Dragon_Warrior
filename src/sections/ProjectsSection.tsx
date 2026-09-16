@@ -1,4 +1,5 @@
 import React from 'react';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 
 interface Campaign {
   id: string;
@@ -87,12 +88,14 @@ export const ProjectsSection: React.FC = () => {
   return (
     <div className="stage-4-layout page-container">
       <div className="stage-chapter-marker motion-reveal campaigns-chapter" data-motion-reveal="fade-up">
-        <span className="stage-chapter-num">CHAPTER 03</span>
+        <span className="stage-chapter-num"><CinematicSplitText lines={['CHAPTER 03']} splitType="words" /></span>
       </div>
 
       <div className="campaigns-intro motion-reveal" data-motion-reveal="fade-up">
-        <p className="campaigns-kicker">THE CAMPAIGNS</p>
-        <h2 className="section-title campaigns-title">THINGS I HAVE BUILT.</h2>
+        <p className="campaigns-kicker"><CinematicSplitText lines={['THE CAMPAIGNS']} splitType="words" /></p>
+        <h2 className="section-title campaigns-title">
+          <CinematicSplitText lines={['THINGS I HAVE BUILT.']} splitType="words" />
+        </h2>
         <p className="campaigns-supporting">From AI-powered applications to systems built for real-world problems.</p>
       </div>
 
@@ -100,8 +103,8 @@ export const ProjectsSection: React.FC = () => {
         <article className="campaign campaign-primary motion-reveal" data-motion-reveal="fade-up">
           <CampaignMeta project={PROJECTS.chatbot} />
           <div className="campaign-primary-heading">
-            <h3>{PROJECTS.chatbot.title}</h3>
-            <h4>{PROJECTS.chatbot.subtitle}</h4>
+            <h3><CinematicSplitText lines={['AI-DRIVEN CHATBOT']} splitType="words" /></h3>
+            <h4><CinematicSplitText lines={['AS A VIRTUAL ASSISTANT']} splitType="words" /></h4>
           </div>
           <ProjectVisual projectId={PROJECTS.chatbot.id} label="PRIMARY CAMPAIGN" />
           <div className="campaign-primary-footer">
@@ -116,7 +119,7 @@ export const ProjectsSection: React.FC = () => {
         <article className="campaign campaign-secondary campaign-oda motion-reveal" data-motion-reveal="fade-up">
           <div className="campaign-secondary-copy">
             <CampaignMeta project={PROJECTS.oda} />
-            <h3>{PROJECTS.oda.title}</h3>
+            <h3><CinematicSplitText lines={['ODA-CMS']} splitType="words" /></h3>
             <p>{PROJECTS.oda.summary}</p>
             <ClassificationList items={PROJECTS.oda.classifications} />
             <ProjectLink project={PROJECTS.oda} />
@@ -128,7 +131,7 @@ export const ProjectsSection: React.FC = () => {
           <ProjectVisual projectId={PROJECTS.rail.id} label="RAIL RESERVE" />
           <div className="campaign-secondary-copy">
             <CampaignMeta project={PROJECTS.rail} />
-            <h3>{PROJECTS.rail.title}</h3>
+            <h3><CinematicSplitText lines={['RAILWAY RESERVATION SYSTEM']} splitType="words" /></h3>
             <p>{PROJECTS.rail.summary}</p>
             <ClassificationList items={PROJECTS.rail.classifications} />
             <ProjectLink project={PROJECTS.rail} />

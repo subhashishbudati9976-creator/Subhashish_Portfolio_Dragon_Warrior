@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { OptionWheel } from '../components/OptionWheel';
+import { CinematicSplitText } from '../components/CinematicSplitText';
+import { SignalSplitText } from '../components/SignalSplitText';
 
 const CONTACT_CHANNELS = [
   {
@@ -35,12 +37,11 @@ export const ContactSection: React.FC = () => {
       <div className="signal-layout">
         <div className="signal-intro motion-reveal" data-motion-reveal="fade-up">
           <div className="stage-chapter-marker signal-chapter">
-            <span className="stage-chapter-num">CHAPTER 05</span>
+            <span className="stage-chapter-num"><CinematicSplitText lines={['CHAPTER 05']} splitType="words" /></span>
           </div>
-          <p className="signal-kicker">THE SIGNAL</p>
+          <p className="signal-kicker"><CinematicSplitText lines={['THE SIGNAL']} splitType="words" /></p>
           <h2 className="signal-title" id="contact-heading">
-            IF YOU FOUND YOUR WAY HERE,
-            <span>LET&apos;S BUILD SOMETHING.</span>
+            <SignalSplitText />
           </h2>
           <p className="signal-supporting">
             Have an idea, a project, or an opportunity worth exploring? Let&apos;s connect.

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { sendZebxMessage } from '../../services/zebxApi';
 import { transcribeZebxAudio } from '../../services/zebxTranscriptionApi';
+import { ZebxNeuralCore, type ZebxNeuralCoreState } from '../ZebxNeuralCore';
 
 interface ZebxMessage {
   id: string;
@@ -9,6 +10,36 @@ interface ZebxMessage {
 }
 
 type SpeechStatus = 'idle' | 'recording' | 'transcribing' | 'error' | 'unsupported';
+
+const ZEBX_SPEECH_SETTINGS = {
+  rate: 0.95,
+  pitch: 0.9,
+  volume: 1,
+};
+
+const selectPreferredVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
+  const englishVoices = voices.filter(voice => voice.lang.toLowerCase().startsWith('en'));
+  if (!englishVoices.length) return null;
+
+  return [...englishVoices].sort((first, second) => {
+    const score = (voice: SpeechSynthesisVoice) => {
+      const metadata = `${voice.name} ${voice.lang}`.toLowerCase();
+      let value = 0;
+      if (metadata.includes('neural') || metadata.includes('premium')) value += 40;
+      if (metadata.includes('natural')) value += 30;
+      if (!voice.localService) value += 10;
+      return value;
+    };
+    return score(second) - score(first);
+  })[0] ?? null;
+};
+
+const cleanSpeechText = (text: string): string => text
+  .replace(/```[\s\S]*?```/g, ' ')
+  .replace(/[`*_>#~]/g, '')
+  .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+  .replace(/\s+/g, ' ')
+  .trim();
 
 const SUGGESTED_PROMPTS = [
   'Tell me about your projects',
@@ -47,6 +78,8 @@ export const AssistantHUD: React.FC = () => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isThinking, setIsThinking] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [canSpeak, setCanSpeak] = useState(false);
   const [speechStatus, setSpeechStatus] = useState<SpeechStatus>('idle');
   const [speechMessage, setSpeechMessage] = useState('');
   const conversationRef = useRef<HTMLDivElement | null>(null);
@@ -54,11 +87,31 @@ export const AssistantHUD: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
+  const lastAssistantResponseRef = useRef('');
+  const neuralCoreState: ZebxNeuralCoreState = isThinking
+    ? 'thinking'
+    : speechStatus === 'recording'
+      ? 'listening'
+      : isSpeaking
+        ? 'speaking'
+        : 'idle';
 
   useEffect(() => {
     const handleAssistantOpen = () => setExpanded(true);
     document.addEventListener('portfolio:assistant:open', handleAssistantOpen);
     return () => document.removeEventListener('portfolio:assistant:open', handleAssistantOpen);
+  }, []);
+
+  useEffect(() => {
+    if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+    speechSynthesisRef.current = window.speechSynthesis;
+    setCanSpeak(true);
+
+    return () => {
+      window.speechSynthesis.cancel();
+      speechSynthesisRef.current = null;
+    };
   }, []);
 
   const cleanupRecording = () => {
@@ -132,14 +185,42 @@ export const AssistantHUD: React.FC = () => {
     else if (speechStatus !== 'transcribing' && speechStatus !== 'unsupported') void startRecording();
   };
 
+  const stopSpeaking = () => {
+    speechSynthesisRef.current?.cancel();
+    setIsSpeaking(false);
+  };
+
+  const speakResponse = (text: string) => {
+    const synthesis = speechSynthesisRef.current;
+    const cleanedText = cleanSpeechText(text);
+    if (!synthesis || !cleanedText) return;
+
+    stopSpeaking();
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
+    const voices = synthesis.getVoices();
+    utterance.voice = selectPreferredVoice(voices);
+    utterance.rate = ZEBX_SPEECH_SETTINGS.rate;
+    utterance.pitch = ZEBX_SPEECH_SETTINGS.pitch;
+    utterance.volume = ZEBX_SPEECH_SETTINGS.volume;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    synthesis.speak(utterance);
+  };
+
   useEffect(() => () => {
     if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
     cleanupRecording();
+    stopSpeaking();
   }, []);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && expanded) setExpanded(false);
+      if (event.key === 'Escape' && expanded) {
+        stopRecording();
+        stopSpeaking();
+        setExpanded(false);
+      }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
@@ -168,6 +249,7 @@ export const AssistantHUD: React.FC = () => {
 
     try {
       const response = await sendZebxMessage(content, history);
+      lastAssistantResponseRef.current = response.message;
       setMessages(current => [
         ...current,
         {
@@ -176,6 +258,7 @@ export const AssistantHUD: React.FC = () => {
           content: response.message,
         },
       ]);
+      speakResponse(response.message);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && err.message
@@ -223,6 +306,7 @@ export const AssistantHUD: React.FC = () => {
               className="assistant-hud-close"
               onClick={() => {
                 stopRecording();
+                stopSpeaking();
                 setExpanded(false);
               }}
               aria-label="Minimize assistant guide"
@@ -233,11 +317,7 @@ export const AssistantHUD: React.FC = () => {
 
           <div className="zebx-interface-body">
             <div className="zebx-identity-column">
-              <div className="zebx-avatar" aria-hidden="true">
-                <span className="zebx-avatar-ring zebx-avatar-ring-outer" />
-                <span className="zebx-avatar-ring zebx-avatar-ring-inner" />
-                <span className="zebx-avatar-core">Z</span>
-              </div>
+              <ZebxNeuralCore state={neuralCoreState} />
               <span className="zebx-identity-label">ZEBX AI</span>
               <span className="zebx-identity-status"><i aria-hidden="true" />VISUAL MODE / READY</span>
               <p className="zebx-identity-note">A cinematic interface for the intelligence layer behind this portfolio.</p>
@@ -312,9 +392,30 @@ export const AssistantHUD: React.FC = () => {
                 </div>
               )}
               <div className="zebx-interface-footer">
-                <span>{isThinking ? 'PROCESSING // STANDBY' : 'GEMINI 3.5 FLASH // CONNECTED'}</span>
-                <span className="zebx-footer-signal"><i aria-hidden="true" />{isThinking ? 'THINKING' : 'READY'}</span>
+                <span>{isThinking ? 'PROCESSING // STANDBY' : isSpeaking ? 'ZEBX // SPEAKING' : 'GEMINI 3.5 FLASH // CONNECTED'}</span>
+                {isSpeaking && (
+                  <button
+                    type="button"
+                    className="zebx-stop-speech"
+                    onClick={stopSpeaking}
+                    aria-label="Stop ZEBX speech"
+                    title="Stop ZEBX speech"
+                  >
+                    ■ STOP
+                  </button>
+                )}
+                <span className="zebx-footer-signal"><i aria-hidden="true" />{isThinking ? 'THINKING' : isSpeaking ? 'SPEAKING' : 'READY'}</span>
               </div>
+              {canSpeak && !isSpeaking && lastAssistantResponseRef.current && (
+                <button
+                  type="button"
+                  className="zebx-speak-response"
+                  onClick={() => speakResponse(lastAssistantResponseRef.current)}
+                  aria-label="Speak the latest ZEBX response"
+                >
+                  SPEAK RESPONSE ↗
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 
 const SKILL_GROUPS = [
   {
@@ -67,13 +68,13 @@ export const ExperienceSection: React.FC = () => {
   return (
     <div className="stage-3-layout page-container">
       <div className="stage-chapter-marker motion-reveal arsenal-chapter" data-motion-reveal="fade-up">
-        <span className="stage-chapter-num">CHAPTER 02</span>
+        <span className="stage-chapter-num"><CinematicSplitText lines={['CHAPTER 02']} splitType="words" /></span>
       </div>
 
       <div className="stage-3-content-grid">
         <div className="stage-3-timeline-col">
           <h2 className="section-title arsenal-title motion-reveal" data-motion-reveal="fade-up">
-            THE ARSENAL
+            <CinematicSplitText lines={['THE ARSENAL']} splitType="words" />
           </h2>
 
           <p className="arsenal-subtitle motion-reveal" data-motion-reveal="fade-up">
@@ -81,10 +82,7 @@ export const ExperienceSection: React.FC = () => {
           </p>
 
           <div className="arsenal-statement motion-reveal" data-motion-reveal="fade-up">
-            <span>CODE.</span>
-            <span>BUILD.</span>
-            <span>DEBUG.</span>
-            <span>DEPLOY.</span>
+            <CinematicSplitText lines={['CODE.', 'BUILD.', 'DEBUG.', 'DEPLOY.']} />
           </div>
 
           <p className="arsenal-description motion-reveal" data-motion-reveal="fade-up">
@@ -107,8 +105,7 @@ export const ExperienceSection: React.FC = () => {
           </div>
 
           <p className="arsenal-motto motion-reveal" data-motion-reveal="fade-up">
-            BUILD WITH PURPOSE.
-            <span>IMPROVE WITH EVERY ITERATION.</span>
+            <CinematicSplitText lines={['BUILD WITH PURPOSE.', 'IMPROVE WITH EVERY ITERATION.']} splitType="words" />
           </p>
         </div>
 

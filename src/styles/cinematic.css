@@ -260,6 +260,34 @@
   max-width: 100%;
 }
 
+.hero-cinematic-name {
+  display: block;
+  width: 100%;
+}
+
+.hero-cinematic-name .cinematic-split-visible {
+  gap: 0.05em;
+}
+
+.hero-cinematic-name .cinematic-split-line {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 4.5vw, 5.25rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  color: var(--color-text-primary);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.hero-cinematic-name .cinematic-split-mask:last-child .cinematic-split-line {
+  color: #f5f5f5;
+  text-shadow: 0 0 20px rgba(198, 40, 61, 0.14);
+}
+
 .hero-name-block {
   display: block;
   overflow: visible;
@@ -2222,6 +2250,71 @@
   color: var(--color-text-secondary);
 }
 
+.signal-split-text {
+  display: block;
+}
+
+.cinematic-split-text {
+  display: block;
+}
+
+.cinematic-split-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cinematic-split-visible {
+  display: flex;
+  flex-direction: column;
+}
+
+.cinematic-split-mask {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0 0.08em;
+}
+
+.cinematic-split-line {
+  display: block;
+  will-change: transform, opacity, filter;
+}
+
+.signal-split-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.signal-split-visible {
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text-primary);
+}
+
+.signal-split-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;
+}
+
+.signal-split-line {
+  display: block;
+  will-change: transform, opacity, filter;
+}
+
 .signal-supporting {
   max-width: 30rem;
   margin: var(--space-6) 0 0;
@@ -3136,6 +3229,260 @@
   text-shadow: 0 0 20px rgba(229, 72, 77, 0.35);
 }
 
+.zebx-neural-core {
+  position: relative;
+  width: min(100%, 16rem);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--space-3);
+  isolation: isolate;
+  color: var(--color-text-primary);
+}
+
+.zebx-neural-core::before,
+.zebx-neural-core::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.zebx-neural-core::before {
+  inset: 22%;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(255, 244, 238, 0.9) 0 3%, rgba(229, 72, 77, 0.42) 18%, rgba(110, 23, 38, 0.22) 42%, transparent 72%);
+  opacity: 0.72;
+  transform: scale(0.96);
+  animation: zebx-core-breathe 4.8s ease-in-out infinite;
+}
+
+.zebx-neural-core::after {
+  inset: 12%;
+  z-index: -2;
+  background: conic-gradient(from 120deg, transparent, rgba(198, 40, 61, 0.18), transparent 36%, rgba(229, 72, 77, 0.11), transparent 72%);
+  opacity: 0.55;
+  animation: zebx-core-energy 8s linear infinite;
+}
+
+.zebx-neural-rings,
+.zebx-neural-filaments,
+.zebx-neural-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.zebx-neural-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: 1px solid rgba(229, 72, 77, 0.42);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.zebx-neural-ring-one {
+  width: 64%;
+  height: 38%;
+  animation: zebx-ring-clockwise 12s linear infinite;
+}
+
+.zebx-neural-ring-two {
+  width: 78%;
+  height: 48%;
+  border-color: rgba(255, 244, 238, 0.24);
+  animation: zebx-ring-counter 17s linear infinite;
+}
+
+.zebx-neural-ring-three {
+  width: 91%;
+  height: 67%;
+  border-style: dashed;
+  border-color: rgba(198, 40, 61, 0.2);
+  animation: zebx-ring-clockwise 24s linear infinite reverse;
+}
+
+.zebx-neural-filaments {
+  overflow: visible;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.zebx-filament {
+  fill: none;
+  stroke: rgba(229, 72, 77, 0.38);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  stroke-dasharray: 4 12;
+  animation: zebx-filament-flow 7s linear infinite;
+}
+
+.zebx-filament-two {
+  stroke: rgba(255, 244, 238, 0.2);
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+
+.zebx-filament-three {
+  stroke: rgba(198, 40, 61, 0.28);
+  animation-duration: 11s;
+}
+
+.zebx-filament-node {
+  fill: var(--color-accent-bright);
+  filter: drop-shadow(0 0 3px rgba(229, 72, 77, 0.65));
+  animation: zebx-node-flicker 3.8s ease-in-out infinite;
+}
+
+.zebx-filament-node-two { animation-delay: -1.3s; }
+.zebx-filament-node-three { animation-delay: -2.4s; }
+
+.zebx-neural-particle {
+  position: absolute;
+  width: 0.22rem;
+  height: 0.22rem;
+  border-radius: 50%;
+  background: rgba(255, 244, 238, 0.82);
+  box-shadow: 0 0 5px rgba(229, 72, 77, 0.7);
+  animation: zebx-particle-drift 5.5s ease-in-out infinite;
+  animation-delay: inherit;
+}
+
+.zebx-neural-particle:nth-child(3n) {
+  width: 0.14rem;
+  height: 0.14rem;
+  background: var(--color-accent-bright);
+}
+
+.zebx-neural-particle:nth-child(4n) {
+  animation-duration: 7.5s;
+  opacity: 0.45;
+}
+
+.zebx-neural-nucleus {
+  position: relative;
+  z-index: 3;
+  width: 31%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(229, 72, 77, 0.72);
+  border-radius: 50%;
+  background: radial-gradient(circle at 46% 42%, #fffaf7 0 4%, #f2c7bf 7%, rgba(229, 72, 77, 0.82) 22%, rgba(110, 23, 38, 0.62) 58%, rgba(5, 5, 6, 0.2) 76%);
+  box-shadow: 0 0 18px rgba(229, 72, 77, 0.3), inset 0 0 12px rgba(255, 244, 238, 0.24);
+  animation: zebx-nucleus-pulse 4.2s ease-in-out infinite;
+}
+
+.zebx-neural-nucleus-core {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1;
+  color: #fffaf7;
+  text-shadow: 0 0 12px rgba(255, 244, 238, 0.75);
+}
+
+.zebx-neural-label {
+  position: absolute;
+  left: 50%;
+  bottom: -0.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.zebx-neural-label strong {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--color-text-primary);
+}
+
+.zebx-neural-label span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.zebx-neural-label i {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--color-accent-bright);
+  box-shadow: 0 0 6px rgba(229, 72, 77, 0.6);
+}
+
+.zebx-neural-core-listening .zebx-neural-ring,
+.zebx-neural-core-speaking .zebx-neural-ring {
+  animation-duration: 8s;
+}
+
+.zebx-neural-core-thinking .zebx-neural-ring {
+  animation-duration: 5s;
+}
+
+.zebx-neural-core-thinking .zebx-neural-particle {
+  animation-duration: 3.2s;
+}
+
+.zebx-neural-core-listening .zebx-neural-particle {
+  animation-duration: 4.2s;
+}
+
+.zebx-neural-core-speaking .zebx-neural-particle {
+  animation-duration: 3.8s;
+}
+
+.zebx-neural-core-thinking::before {
+  animation-duration: 2.4s;
+}
+
+@keyframes zebx-core-breathe {
+  0%, 100% { opacity: 0.58; transform: scale(0.94); }
+  50% { opacity: 0.82; transform: scale(1.04); }
+}
+
+@keyframes zebx-core-energy {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes zebx-nucleus-pulse {
+  0%, 100% { transform: scale(0.96); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes zebx-ring-clockwise {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes zebx-ring-counter {
+  to { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+@keyframes zebx-filament-flow {
+  to { stroke-dashoffset: -48; }
+}
+
+@keyframes zebx-node-flicker {
+  0%, 100% { opacity: 0.35; }
+  48%, 58% { opacity: 1; }
+}
+
+@keyframes zebx-particle-drift {
+  0%, 100% { opacity: 0.35; transform: translate3d(0, 0, 0) scale(0.8); }
+  50% { opacity: 0.95; transform: translate3d(0.28rem, -0.35rem, 0) scale(1.2); }
+}
+
 .zebx-identity-label {
   font-family: var(--font-display);
   font-size: 1.4rem;
@@ -3423,6 +3770,56 @@
   color: #f08a8a;
 }
 
+.zebx-speak-response {
+  align-self: flex-start;
+  padding: 0.25rem 0;
+  border: 0;
+  border-bottom: 1px solid rgba(198, 40, 61, 0.5);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+
+.zebx-speak-response:hover,
+.zebx-speak-response:focus-visible {
+  border-color: var(--color-accent-bright);
+  color: var(--color-accent-bright);
+}
+
+.zebx-speak-response:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.zebx-stop-speech {
+  margin-left: auto;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid rgba(198, 40, 61, 0.5);
+  background: rgba(198, 40, 61, 0.08);
+  color: var(--color-accent-bright);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+.zebx-stop-speech:hover,
+.zebx-stop-speech:focus-visible {
+  border-color: var(--color-accent-bright);
+  background: rgba(198, 40, 61, 0.18);
+  color: var(--color-text-primary);
+}
+
+.zebx-stop-speech:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .zebx-input-cursor {
   width: 0.35rem;
   height: 0.9rem;
@@ -3459,6 +3856,10 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  .zebx-neural-core {
+    width: min(100%, 13rem);
+  }
+
   .zebx-avatar {
     width: 6rem;
     height: 6rem;
@@ -3477,9 +3878,22 @@
   .zebx-interface,
   .zebx-interface .assistant-hud-close,
   .zebx-thinking,
-  .zebx-microphone-button {
+  .zebx-microphone-button,
+  .zebx-speak-response,
+  .zebx-stop-speech {
     animation: none;
     transition: none;
+  }
+
+  .zebx-neural-core *,
+  .zebx-neural-core::before,
+  .zebx-neural-core::after {
+    animation: none !important;
+  }
+
+  .zebx-neural-core::before {
+    opacity: 0.7;
+    transform: none;
   }
 }
 

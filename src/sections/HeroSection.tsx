@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '../components/Button';
+import { CinematicSplitText } from '../components/CinematicSplitText';
 
 export const HeroSection: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
@@ -38,12 +39,7 @@ export const HeroSection: React.FC = () => {
         </div>
 
         <h1 className="hero-headline" aria-label="Subhashish Budati">
-          <span className="hero-name-block hero-name-primary">
-            <span>SUBHASHISH</span>
-          </span>
-          <span className="hero-name-block hero-name-secondary">
-            <span>BUDATI</span>
-          </span>
+          <CinematicSplitText lines={['SUBHASHISH', 'BUDATI']} className="hero-cinematic-name" />
         </h1>
 
         <p className="hero-discipline">CSE • AI APPLICATIONS • SOFTWARE ENGINEERING</p>
