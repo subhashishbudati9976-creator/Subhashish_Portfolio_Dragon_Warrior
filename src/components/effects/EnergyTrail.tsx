@@ -104,21 +104,28 @@ export const EnergyTrail: React.FC = () => {
 
     window.addEventListener('resize', handleResize, { passive: true });
 
-    // Ultra-smooth rendering loop
+    let lastFrameTime = performance.now();
+
+    // Ultra-smooth high-refresh-rate rendering loop (60Hz, 120Hz, 240Hz calibrated)
     const render = (now: number) => {
+      const dt = Math.min(64, Math.max(1, now - lastFrameTime));
+      lastFrameTime = now;
+      const dtScale = dt / 16.667; // Normalized against 60fps baseline
+
       ctx.clearRect(0, 0, width / dpr, height / dpr);
 
       let anyVisible = false;
 
-      // 1. Update lead node (Node 0)
+      // 1. Update lead node (Node 0) with delta-time invariant lerp
       const lead = nodes[0];
       if (mouse.inWindow) {
-        // High-responsiveness lerp toward cursor
-        lead.x += (mouse.x - lead.x) * 0.46;
-        lead.y += (mouse.y - lead.y) * 0.46;
+        const leadLerp = 1 - Math.pow(1 - 0.46, dtScale);
+        lead.x += (mouse.x - lead.x) * leadLerp;
+        lead.y += (mouse.y - lead.y) * leadLerp;
       }
 
       // 2. Update subsequent nodes with constrained distance and subtle organic sway
+      const pullFactor = 1 - Math.pow(1 - 0.38, dtScale);
       for (let i = 1; i < NODE_COUNT; i++) {
         const prev = nodes[i - 1];
         const curr = nodes[i];
@@ -129,7 +136,6 @@ export const EnergyTrail: React.FC = () => {
         const dist = Math.hypot(dx, dy);
 
         const targetDist = 11.5;
-        const pullFactor = 0.38;
 
         if (dist > 0.001) {
           curr.x += dx * pullFactor;
@@ -143,8 +149,8 @@ export const EnergyTrail: React.FC = () => {
           }
         }
 
-        // Tiny organic micro-sway (0.6px max) gives living supernatural energy feel
-        const sway = Math.sin(now * 0.007 + i * 0.85) * 0.45;
+        // Tiny organic micro-sway calibrated with absolute timestamp
+        const sway = Math.sin(now * 0.005 + i * 0.85) * 0.45;
         curr.x += sway * 0.3;
         curr.y += sway * 0.3;
       }
@@ -168,23 +174,24 @@ export const EnergyTrail: React.FC = () => {
           node.targetAlpha = 0;
         }
 
-        // Smooth alpha transition
-        node.alpha += (node.targetAlpha - node.alpha) * (node.targetAlpha === 0 ? 0.12 : 0.28);
+        // Smooth delta-calibrated alpha transition
+        const alphaRate = node.targetAlpha === 0 ? 0.12 : 0.28;
+        const alphaStep = 1 - Math.pow(1 - alphaRate, dtScale);
+        node.alpha += (node.targetAlpha - node.alpha) * alphaStep;
 
         if (node.alpha > 0.01) {
           anyVisible = true;
 
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-
-          // Lead particle gets a restrained subtle red glow
+          // Lead particle gets a high-performance concentric aura (zero shadowBlur GPU raster cost)
           if (i === 0) {
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = `rgba(225, 29, 46, ${node.alpha * 0.65})`;
-          } else {
-            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.size * 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(225, 29, 46, ${Math.min(0.28, node.alpha * 0.35)})`;
+            ctx.fill();
           }
 
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
           ctx.fillStyle = node.color;
           ctx.globalAlpha = Math.max(0, Math.min(1, node.alpha));
           ctx.fill();
@@ -203,8 +210,7 @@ export const EnergyTrail: React.FC = () => {
         }
       }
 
-      // Reset context state for clean compositing
-      ctx.shadowBlur = 0;
+      // Reset global alpha
       ctx.globalAlpha = 1;
 
       // 4. Auto-sleep detection: if all particles have faded out and mouse is idle, stop rAF!
@@ -220,6 +226,7 @@ export const EnergyTrail: React.FC = () => {
     const wakeLoop = () => {
       if (isSleeping) {
         isSleeping = false;
+        lastFrameTime = performance.now();
         rafId = requestAnimationFrame(render);
       }
     };

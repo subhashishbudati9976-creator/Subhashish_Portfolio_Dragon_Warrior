@@ -49,6 +49,7 @@ export const ShapeWaves: React.FC<ShapeWavesProps> = ({ isActive = true }) => {
     if (!ctx) return;
 
     let time = 0;
+    let lastTime = performance.now();
     const waveCount = 5;
     const colors = [
       'rgba(198, 40, 61, 0.16)', // Crimson
@@ -58,9 +59,13 @@ export const ShapeWaves: React.FC<ShapeWavesProps> = ({ isActive = true }) => {
       'rgba(198, 40, 61, 0.10)', // Ambient wave
     ];
 
-    const render = () => {
+    const render = (now: number) => {
       if (isDestroyed || !ctx) return;
-      time += 0.012;
+      const dt = Math.min(64, Math.max(1, now - lastTime));
+      lastTime = now;
+      const dtScale = dt / 16.667;
+
+      time += 0.012 * dtScale;
 
       ctx.clearRect(0, 0, width, height);
 

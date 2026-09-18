@@ -19,6 +19,7 @@ import { CinematicWelcomeScreen } from './components/welcome/CinematicWelcomeScr
 import Aurora from './components/effects/Aurora';
 import { EnergyTrail } from './components/effects/EnergyTrail';
 import { useRevealObserver } from './hooks/useRevealObserver';
+import { cinematicAudio } from './services/cinematicAudio';
 
 export const App: React.FC = () => {
   useRevealObserver();
@@ -26,21 +27,19 @@ export const App: React.FC = () => {
   const audioControllerRef = useRef<AudioControllerHandle | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const wasPlayingBeforeVideoRef = useRef(false);
-  const hasStartedMusicOnWelcomeRef = useRef(false);
 
   const handleWelcomeEnter = useCallback(() => {
-    // Start background music when visitor clicks the welcome screen entry button
-    if (hasStartedMusicOnWelcomeRef.current) return;
-    hasStartedMusicOnWelcomeRef.current = true;
-    audioControllerRef.current?.play();
+    // Synchronously ensure playback when user clicks enter
+    // If already playing, this is a smooth no-op without restart
+    cinematicAudio.play().catch(() => {});
   }, []);
 
   const handleBeatboxVideoPlay = useCallback(() => {
     // Pause background music while beatboxing performance video plays
     setIsVideoPlaying(true);
-    if (audioControllerRef.current?.isPlaying) {
+    if (cinematicAudio.getState().isPlaying) {
       wasPlayingBeforeVideoRef.current = true;
-      audioControllerRef.current?.pause();
+      cinematicAudio.pause();
     } else {
       wasPlayingBeforeVideoRef.current = false;
     }
@@ -50,10 +49,11 @@ export const App: React.FC = () => {
     // Resume background music when beatboxing video is paused or ends
     setIsVideoPlaying(false);
     if (wasPlayingBeforeVideoRef.current) {
-      audioControllerRef.current?.play();
+      cinematicAudio.play().catch(() => {});
       wasPlayingBeforeVideoRef.current = false;
     }
   }, []);
+
 
   return (
     <div className="portfolio-app">

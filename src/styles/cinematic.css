@@ -4165,10 +4165,38 @@
   transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cinematic-welcome-overlay.is-exiting {
+.cinematic-welcome-overlay.is-exiting:not(.is-revealing) {
   opacity: 0;
   transform: scale(1.04);
   pointer-events: none;
+}
+
+.cinematic-welcome-overlay.is-revealing {
+  background: transparent !important;
+  pointer-events: none;
+}
+
+.cinematic-welcome-overlay.is-revealing .welcome-background-glow,
+.cinematic-welcome-overlay.is-revealing .welcome-backdrop-image {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.welcome-content-card.is-dissolving {
+  opacity: 0;
+  transform: scale(0.96) translateY(-14px);
+  filter: blur(6px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), filter 0.55s ease-out;
+  pointer-events: none;
+}
+
+.dragon-ink-reveal-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
 }
 
 .welcome-background-glow {
@@ -4201,12 +4229,83 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-8) var(--space-6);
-  background: rgba(12, 13, 18, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(12, 13, 18, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(198, 40, 61, 0.35);
   border-radius: var(--radius-xl);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(198, 40, 61, 0.15);
+  transform: translateZ(0);
+}
+
+/* Real-Time Audio Status Header Pill */
+.welcome-audio-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+}
+
+.welcome-audio-status.is-active {
+  background: rgba(198, 40, 61, 0.18);
+  border: 1px solid rgba(245, 37, 48, 0.45);
+  color: #ff4d5a;
+  box-shadow: 0 0 16px rgba(198, 40, 61, 0.25);
+}
+
+.welcome-audio-status.is-blocked {
+  background: rgba(230, 160, 30, 0.12);
+  border: 1px solid rgba(230, 160, 30, 0.4);
+  color: #ffca58;
+}
+
+.welcome-audio-status.is-loading {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-muted);
+}
+
+.welcome-audio-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+
+.welcome-audio-bars .w-bar {
+  width: 2px;
+  background: #ff3344;
+  border-radius: 1px;
+  animation: welcomeBarBounce 0.75s ease-in-out infinite alternate;
+}
+
+.welcome-audio-bars .wb1 { height: 4px; animation-delay: 0s; }
+.welcome-audio-bars .wb2 { height: 10px; animation-delay: 0.22s; }
+.welcome-audio-bars .wb3 { height: 6px; animation-delay: 0.44s; }
+
+@keyframes welcomeBarBounce {
+  0% { height: 2px; }
+  100% { height: 10px; }
+}
+
+.welcome-audio-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffca58;
+  box-shadow: 0 0 8px rgba(255, 202, 88, 0.8);
+  animation: welcomeDotPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes welcomeDotPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 .welcome-eyebrow {
@@ -4242,6 +4341,9 @@
 .welcome-action-wrapper {
   margin-top: var(--space-4);
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .welcome-enter-btn {
@@ -4272,6 +4374,40 @@
   box-shadow: 0 8px 30px rgba(198, 40, 61, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.4);
   outline: none;
+}
+
+.welcome-enter-btn.has-sound-prompt {
+  background: linear-gradient(135deg, rgba(225, 29, 46, 0.95) 0%, rgba(138, 15, 28, 0.98) 100%);
+  box-shadow: 0 6px 28px rgba(225, 29, 46, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.welcome-enable-sound-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(230, 160, 30, 0.45);
+  border-radius: var(--radius-sm);
+  color: #ffca58;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.welcome-enable-sound-btn:hover {
+  background: rgba(230, 160, 30, 0.15);
+  border-color: #ffca58;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.welcome-enable-sound-btn .sound-btn-icon {
+  font-size: 10px;
 }
 
 .welcome-enter-btn .btn-text {

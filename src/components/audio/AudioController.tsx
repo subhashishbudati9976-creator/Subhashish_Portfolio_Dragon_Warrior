@@ -1,62 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
+import {
+  cinematicAudio,
+  PLAYLIST,
+  type AudioPlaylistTrack,
+  type AudioState,
+} from '../../services/cinematicAudio';
 
-export interface AudioPlaylistTrack {
-  id: string;
-  title: string;
-  artist?: string;
-  src: string;
-}
-
-export const PLAYLIST: AudioPlaylistTrack[] = [
-  {
-    id: 'kabali',
-    title: 'Kabali',
-    artist: 'Opening Track',
-    src: '/media/cinematic/aud/kabali_-_neruppu_da_(mp3.pm).mp3',
-  },
-  {
-    id: 'fight-back',
-    title: 'Fight Back',
-    artist: 'NEFFEX',
-    src: '/media/cinematic/aud/Fight_Back_-_NEFFEX_(mp3.pm).mp3',
-  },
-  {
-    id: 'timeless-guitar',
-    title: 'Timeless Guitar',
-    artist: 'Latti Bankai',
-    src: '/media/cinematic/aud/latti_Bankai_-_Timeless_-_Guitar_(mp3.pm).mp3',
-  },
-  {
-    id: 'montagem-guerreiro',
-    title: 'Montagem Guerreiro',
-    artist: 'Shyx x Magisterphonk',
-    src: '/media/cinematic/aud/shyx_x_magisterphonk_-_montagem_guerreiro_(mp3.pm).mp3',
-  },
-  {
-    id: 'dna',
-    title: 'DNA',
-    artist: 'Kendrick Lamar',
-    src: '/media/cinematic/aud/Kendrick_Lamar_-_DNA_-_Kendrick_Lamar_-_DNA_(mp3.pm).mp3',
-  },
-  {
-    id: 'remember-the-name',
-    title: 'Remember the Name',
-    artist: 'Styles of Beyond',
-    src: '/media/cinematic/aud/Fort_Minor_-_Remember_The_Name_feat.Styles_Of_Beyond_(mp3.pm).mp3',
-  },
-  {
-    id: 'raya-guitar',
-    title: 'Raya Guitar',
-    artist: 'Acoustic Theme',
-    src: '/media/cinematic/aud/raya_guitar.mp3',
-  },
-  {
-    id: 'montagem-guerreiro-slowed',
-    title: 'Montagem Guerreiro - Slowed',
-    artist: 'Shyx x Magisterphonk',
-    src: '/media/cinematic/aud/MONTAGEM GUERREIRO - Slowed.mp3',
-  },
-];
+export { PLAYLIST, type AudioPlaylistTrack };
 
 export interface AudioControllerHandle {
   play: () => void;
@@ -156,213 +106,71 @@ const formatTime = (seconds: number): string => {
 };
 
 export const AudioController = forwardRef<AudioControllerHandle, AudioControllerProps>((_props, ref) => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [trackIndex, setTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolumeState] = useState(0.18); // Default low 18% volume
-  const [isMuted, setIsMuted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [audioState, setAudioState] = useState<AudioState>(() => cinematicAudio.getState());
   const [showPlaylist, setShowPlaylist] = useState(false);
 
-  const previousVolumeRef = useRef(0.18);
-  const trackIndexRef = useRef(0);
-  trackIndexRef.current = trackIndex;
-
-  const currentTrack = PLAYLIST[trackIndex];
-
-  // Initialize audio element properties once on mount
+  // Subscribe to the single persistent audio singleton
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.volume = volume;
-    if (!audio.src) {
-      audio.src = PLAYLIST[0].src;
-    }
+    const unsubscribe = cinematicAudio.subscribe((state) => {
+      setAudioState(state);
+    });
+    return unsubscribe;
   }, []);
 
-  // Update volume on HTML audio element without re-triggering playback
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = isMuted ? 0 : volume;
-    }
-  }, [volume, isMuted]);
+  const {
+    trackIndex,
+    currentTrack,
+    isPlaying,
+    volume,
+    isMuted,
+    currentTime,
+    duration,
+  } = audioState;
 
-  // Play a specific track index cleanly without multiple DOM src assignments or buffer resets
+  // Expose imperative handle for external control (welcome screen, beatbox video)
+  useImperativeHandle(
+    ref,
+    () => ({
+      play: () => {
+        cinematicAudio.play().catch(() => {});
+      },
+      pause: () => {
+        cinematicAudio.pause();
+      },
+      setVolume: (val: number) => {
+        cinematicAudio.setVolume(val);
+      },
+      isPlaying,
+    }),
+    [isPlaying]
+  );
+
   const playTrack = useCallback((index: number) => {
-    setTrackIndex(index);
-    trackIndexRef.current = index;
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const track = PLAYLIST[index];
-    const currentAudioPath = audio.src ? new URL(audio.src, window.location.href).pathname : '';
-    const targetPath = new URL(track.src, window.location.href).pathname;
-
-    if (currentAudioPath !== targetPath) {
-      audio.src = track.src;
-    }
-
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => setIsPlaying(true))
-        .catch((err) => {
-          console.warn('Playback deferred or restricted:', err);
-          setIsPlaying(false);
-        });
-    }
+    cinematicAudio.playTrack(index);
   }, []);
 
   const handlePrevTrack = useCallback(() => {
-    const prevIdx = (trackIndexRef.current - 1 + PLAYLIST.length) % PLAYLIST.length;
-    playTrack(prevIdx);
-  }, [playTrack]);
+    cinematicAudio.prevTrack();
+  }, []);
 
   const handleNextTrack = useCallback(() => {
-    const nextIdx = (trackIndexRef.current + 1) % PLAYLIST.length;
-    playTrack(nextIdx);
-  }, [playTrack]);
-
-  // Expose imperative handle for external control (welcome screen, beatbox video)
-  useImperativeHandle(ref, () => ({
-    play: () => {
-      const audio = audioRef.current;
-      if (!audio) return;
-
-      if (!audio.src) {
-        audio.src = PLAYLIST[trackIndexRef.current].src;
-      }
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => setIsPlaying(true))
-          .catch((err) => {
-            console.warn('Autoplay restriction or audio play error:', err);
-            setIsPlaying(false);
-          });
-      }
-    },
-    pause: () => {
-      const audio = audioRef.current;
-      if (audio) {
-        audio.pause();
-        setIsPlaying(false);
-      }
-    },
-    setVolume: (val: number) => {
-      setVolumeState(val);
-      if (audioRef.current) audioRef.current.volume = val;
-    },
-    isPlaying,
-  }));
-
-  // Stable event listeners attached ONCE to prevent audio stutter/churn
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime || 0);
-    };
-
-    const handleDurationChange = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const handleEnded = () => {
-      const nextIdx = (trackIndexRef.current + 1) % PLAYLIST.length;
-      playTrack(nextIdx);
-    };
-
-    const handleError = () => {
-      const failedTrack = PLAYLIST[trackIndexRef.current];
-      console.warn(`Audio track "${failedTrack.title}" unavailable, advancing...`);
-      const timeout = setTimeout(() => {
-        const nextIdx = (trackIndexRef.current + 1) % PLAYLIST.length;
-        playTrack(nextIdx);
-      }, 500);
-      return () => clearTimeout(timeout);
-    };
-
-    const handlePause = () => {
-      setIsPlaying(false);
-    };
-
-    const handlePlay = () => {
-      setIsPlaying(true);
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
-    audio.addEventListener('loadedmetadata', handleDurationChange);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('play', handlePlay);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      audio.removeEventListener('loadedmetadata', handleDurationChange);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('play', handlePlay);
-    };
-  }, [playTrack]);
+    cinematicAudio.nextTrack();
+  }, []);
 
   const togglePlayback = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      if (!audio.src) {
-        audio.src = PLAYLIST[trackIndexRef.current].src;
-      }
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch((err) => {
-          console.warn('Playback failed:', err);
-          setIsPlaying(false);
-        });
-    }
+    cinematicAudio.togglePlay();
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const targetTime = parseFloat(e.target.value);
-    setCurrentTime(targetTime);
-    if (audioRef.current) {
-      audioRef.current.currentTime = targetTime;
-    }
+    cinematicAudio.seek(parseFloat(e.target.value));
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setVolumeState(val);
-    previousVolumeRef.current = val;
-    if (val > 0 && isMuted) {
-      setIsMuted(false);
-    }
+    cinematicAudio.setVolume(parseFloat(e.target.value));
   };
 
   const toggleMute = () => {
-    if (isMuted) {
-      const restored = previousVolumeRef.current > 0 ? previousVolumeRef.current : 0.18;
-      setVolumeState(restored);
-      setIsMuted(false);
-    } else {
-      previousVolumeRef.current = volume > 0 ? volume : 0.18;
-      setIsMuted(true);
-    }
+    cinematicAudio.toggleMute();
   };
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -373,13 +181,10 @@ export const AudioController = forwardRef<AudioControllerHandle, AudioController
       aria-label="Dragon Warrior atmospheric music player"
     >
       {/* 
-        Persistent audio element with preload auto for instant playback.
-        Decoupled from reactive JSX src attribute to prevent buffer resets on render.
+        Single Persistent Audio Owner is cinematicAudio singleton.
+        Zero duplicate <audio> tags or buffer conflicts.
       */}
-      <audio
-        ref={audioRef}
-        preload="auto"
-      />
+
 
       {/* Expandable Playlist Drawer */}
       {showPlaylist && (

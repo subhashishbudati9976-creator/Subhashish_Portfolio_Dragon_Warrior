@@ -40,15 +40,15 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Safe seek with hardware-acceleration, deadband threshold & watchdog protection
+  // Safe seek with frame-accurate precision, deadband threshold & watchdog protection
   const requestSeek = (targetTime: number) => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
 
     const safeTime = Math.max(0, Math.min(video.duration - 0.04, targetTime));
 
-    // Deadband threshold: skip seek if within ~1 frame duration (35ms)
-    if (Math.abs(video.currentTime - safeTime) < 0.035) return;
+    // Deadband threshold: skip seek if within ~half-frame duration (20ms)
+    if (Math.abs(video.currentTime - safeTime) < 0.02) return;
 
     if (seekBusyRef.current) {
       pendingTimeRef.current = safeTime;
@@ -58,7 +58,7 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     seekBusyRef.current = true;
     lastSeekStampRef.current = performance.now();
 
-    // Watchdog: auto-release busy lock if browser seeked event doesn't fire within 90ms
+    // Watchdog: auto-release busy lock if browser seeked event doesn't fire within 65ms
     if (seekWatchdogRef.current !== null) {
       window.clearTimeout(seekWatchdogRef.current);
     }
@@ -69,15 +69,11 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
         pendingTimeRef.current = null;
         requestSeek(next);
       }
-    }, 90);
+    }, 65);
 
     try {
-      const vid = video as HTMLVideoElement & { fastSeek?: (time: number) => void };
-      if (typeof vid.fastSeek === 'function') {
-        vid.fastSeek(safeTime);
-      } else {
-        video.currentTime = safeTime;
-      }
+      // Precision frame-accurate assignment (avoiding coarse keyframe jumps from fastSeek)
+      video.currentTime = safeTime;
     } catch {
       seekBusyRef.current = false;
       if (seekWatchdogRef.current !== null) {
@@ -93,7 +89,7 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
     const dt = Math.min(64, now - lastTick);
     lastTickRef.current = now;
 
-    // Fluid cinematic lerp factor (k=0.14) normalized across frame intervals
+    // Fluid cinematic lerp factor (k=0.14) normalized across frame intervals (60Hz, 120Hz, 240Hz calibrated)
     const factor = 1 - Math.pow(1 - 0.14, dt / 16.667);
     const target = targetProgressRef.current;
     let current = currentProgressRef.current;
@@ -111,9 +107,9 @@ export const CinematicBackground: React.FC<CinematicBackgroundProps> = ({
       rafIdRef.current = requestAnimationFrame(tick);
     }
 
-    // Seek video at throttled interval (max 30fps seek to prevent decoder congestion)
+    // Seek video at throttled interval (calibrated for high-refresh-rate hardware video decoders)
     const video = videoRef.current;
-    if (video && video.duration && (now - lastSeekStampRef.current > 30 || Math.abs(target - current) < 0.001)) {
+    if (video && video.duration && (now - lastSeekStampRef.current > 24 || Math.abs(target - current) < 0.001)) {
       requestSeek(current * video.duration);
     }
 

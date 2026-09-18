@@ -43,11 +43,10 @@ export const CinematicSplitText: React.FC<CinematicSplitTextProps> = ({
           ? splits.flatMap(split => split.words)
           : lineElements;
 
-        gsap.set(targets, { opacity: 0, y: 78, filter: 'blur(4px)', force3D: true });
+        gsap.set(targets, { opacity: 0, y: 64, force3D: true });
         gsap.to(targets, {
           opacity: 1,
           y: 0,
-          filter: 'blur(0px)',
           duration,
           stagger,
           ease: 'power3.out',
@@ -57,7 +56,6 @@ export const CinematicSplitText: React.FC<CinematicSplitTextProps> = ({
             once: true,
           },
           onComplete: () => {
-            gsap.set(targets, { filter: 'none', clearProps: 'filter' });
             if (root) {
               const masks = root.querySelectorAll('.cinematic-split-mask');
               masks.forEach(mask => {
