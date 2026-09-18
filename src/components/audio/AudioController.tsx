@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import {
   cinematicAudio,
   PLAYLIST,
@@ -108,6 +108,7 @@ const formatTime = (seconds: number): string => {
 export const AudioController = forwardRef<AudioControllerHandle, AudioControllerProps>((_props, ref) => {
   const [audioState, setAudioState] = useState<AudioState>(() => cinematicAudio.getState());
   const [showPlaylist, setShowPlaylist] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   // Subscribe to the single persistent audio singleton
   useEffect(() => {
@@ -116,6 +117,36 @@ export const AudioController = forwardRef<AudioControllerHandle, AudioController
     });
     return unsubscribe;
   }, []);
+
+  // Robust outside-click & Escape-key detection for the "All Songs" drawer
+  useEffect(() => {
+    if (!showPlaylist) return;
+
+    const handlePointerDown = (e: PointerEvent | MouseEvent) => {
+      // If click originated outside the audio controller root, close cleanly
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setShowPlaylist(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowPlaylist(false);
+      }
+    };
+
+    // Attach on next tick to ensure the opening click does not trigger immediate dismissal
+    const timer = setTimeout(() => {
+      document.addEventListener('pointerdown', handlePointerDown);
+      document.addEventListener('keydown', handleKeyDown);
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showPlaylist]);
 
   const {
     trackIndex,
@@ -147,6 +178,8 @@ export const AudioController = forwardRef<AudioControllerHandle, AudioController
 
   const playTrack = useCallback((index: number) => {
     cinematicAudio.playTrack(index);
+    // User requirement: List stays open until intentionally closed or a song is selected
+    setShowPlaylist(false);
   }, []);
 
   const handlePrevTrack = useCallback(() => {
@@ -173,10 +206,16 @@ export const AudioController = forwardRef<AudioControllerHandle, AudioController
     cinematicAudio.toggleMute();
   };
 
+  const handleTogglePlaylist = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPlaylist(prev => !prev);
+  };
+
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div
+      ref={rootRef}
       className="audio-controller-hud spotify-player-root"
       aria-label="Dragon Warrior atmospheric music player"
     >
@@ -185,20 +224,24 @@ export const AudioController = forwardRef<AudioControllerHandle, AudioController
         Zero duplicate <audio> tags or buffer conflicts.
       */}
 
-
-      {/* Expandable Playlist Drawer */}
+      {/* Expandable Playlist Drawer — motion-reveal removed to prevent conflict with .motion-ready */}
       {showPlaylist && (
-        <div className="spotify-playlist-drawer motion-reveal" role="dialog" aria-label="Playlist tracks">
+        <div
+          className="spotify-playlist-drawer"
+          role="dialog"
+          aria-label="All Songs — Cinematic Soundtrack Playlist"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="spotify-drawer-header">
             <div className="spotify-drawer-title-group">
               <span className="spotify-drawer-badge">HUD AUDIO</span>
-              <h4 className="spotify-drawer-title">CINEMATIC SOUNDTRACK</h4>
+              <h4 className="spotify-drawer-title">ALL SONGS // SOUNDTRACK</h4>
             </div>
             <button
               type="button"
               className="spotify-drawer-close"
               onClick={() => setShowPlaylist(false)}
-              aria-label="Close playlist"
+              aria-label="Close All Songs playlist"
               title="Close playlist"
             >
               <IconClose />
@@ -364,9 +407,9 @@ export const AudioController = forwardRef<AudioControllerHandle, AudioController
           <button
             type="button"
             className={`spotify-icon-btn spotify-playlist-btn${showPlaylist ? ' is-open' : ''}`}
-            onClick={() => setShowPlaylist(prev => !prev)}
-            title="Toggle playlist panel"
-            aria-label="Toggle playlist panel"
+            onClick={handleTogglePlaylist}
+            title="All Songs — Cinematic Soundtrack"
+            aria-label="All Songs — Toggle soundtrack playlist"
           >
             <span className="playlist-icon-bars" aria-hidden="true">
               <IconPlaylist />
