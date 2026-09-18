@@ -1,6 +1,12 @@
+import dns from 'node:dns';
 import { GoogleGenAI } from '@google/genai';
 
-export const ZEBX_TRANSCRIPTION_MODEL = 'gemini-3.5-flash';
+// Prevent Node on Windows from stalling on unreachable IPv6 routes
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
+export const ZEBX_TRANSCRIPTION_MODEL = 'gemini-3.5-flash-lite';
 
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 const SUPPORTED_AUDIO_TYPES = new Set([

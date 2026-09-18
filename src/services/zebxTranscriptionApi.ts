@@ -16,6 +16,9 @@ export async function transcribeZebxAudio(audio: Blob): Promise<ZebxTranscriptio
     if (payload && typeof payload === 'object' && 'error' in payload && typeof payload.error === 'string') {
       throw new Error(payload.error);
     }
+    if (response.status === 404) {
+      throw new Error('Voice transcription endpoint is not available on this server.');
+    }
     throw new Error('Voice transcription is unavailable right now.');
   }
 
