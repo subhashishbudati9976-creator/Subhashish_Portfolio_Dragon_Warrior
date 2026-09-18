@@ -54,8 +54,8 @@ export const DragonInkReveal: React.FC<DragonInkRevealProps> = ({
     if (!ctx) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const width = (canvas.width = Math.floor(window.innerWidth * dpr));
-    const height = (canvas.height = Math.floor(window.innerHeight * dpr));
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
     ctx.scale(dpr, dpr);
 
     const screenW = window.innerWidth;
@@ -197,7 +197,6 @@ export const DragonInkReveal: React.FC<DragonInkRevealProps> = ({
     const render = (now: number) => {
       const dtMs = Math.min(50, Math.max(1, now - lastTime));
       lastTime = now;
-      const dtSec = dtMs / 1000;
       const dtScale = dtMs / 16.667;
 
       const elapsed = (now - startTime) / 1000;

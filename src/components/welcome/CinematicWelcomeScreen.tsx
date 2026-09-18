@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ShapeWaves } from '../effects/ShapeWaves';
-import { DragonInkReveal } from '../effects/DragonInkReveal';
+import { CrimsonInkReveal } from '../effects/CrimsonInkReveal';
 import { cinematicAudio, type AudioState } from '../../services/cinematicAudio';
 
 interface CinematicWelcomeScreenProps {
@@ -51,13 +51,13 @@ export const CinematicWelcomeScreen: React.FC<CinematicWelcomeScreenProps> = ({ 
     // Notify parent
     onEnter();
 
-    // Trigger full-screen Dragon Warrior Ink & Chi Particle reveal
+    // Trigger full-screen Golden Dragon Energy Path reveal
     setIsRevealing(true);
     setIsExiting(true);
   }, [isExiting, isDismissed, isRevealing, onEnter]);
 
   const handleRevealComplete = useCallback(() => {
-    console.log('[CinematicWelcomeScreen] Ink reveal completed. Cleanly dismissing welcome overlay.');
+    console.log('[CinematicWelcomeScreen] Crimson dragon ink reveal completed. Cleanly dismissing welcome overlay.');
     setIsDismissed(true);
   }, []);
 
@@ -81,9 +81,9 @@ export const CinematicWelcomeScreen: React.FC<CinematicWelcomeScreenProps> = ({ 
       aria-modal="true"
       aria-label="Welcome to Subhashish's Cinematic Universe"
     >
-      {/* Full-Screen Ancient Martial Arts Ink Brush & Dragon Chi Reveal */}
+      {/* Full-Screen Crimson Dragon Energy Line & Flowing Red Ink Reveal (Left -> Right) */}
       {isRevealing && (
-        <DragonInkReveal onComplete={handleRevealComplete} duration={3.2} />
+        <CrimsonInkReveal onComplete={handleRevealComplete} duration={3.4} />
       )}
 
       <div className="welcome-background-glow" aria-hidden="true" />

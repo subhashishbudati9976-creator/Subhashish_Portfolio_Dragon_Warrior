@@ -4190,6 +4190,8 @@
   pointer-events: none;
 }
 
+.crimson-ink-reveal-canvas,
+.golden-dragon-reveal-canvas,
 .dragon-ink-reveal-canvas {
   position: fixed;
   inset: 0;
@@ -4197,6 +4199,7 @@
   height: 100vh;
   pointer-events: none;
   z-index: 9999;
+  transform: translateZ(0);
 }
 
 .welcome-background-glow {
