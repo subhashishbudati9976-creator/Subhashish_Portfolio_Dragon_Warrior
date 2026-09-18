@@ -16,6 +16,17 @@ const sendJson = (response: NodeResponse, statusCode: number, payload: unknown):
 };
 
 const readJsonBody = async (request: NodeRequest): Promise<unknown> => {
+  if (request.body && typeof request.body === 'object') {
+    return request.body;
+  }
+  if (typeof request.body === 'string' && request.body.trim()) {
+    try {
+      return JSON.parse(request.body);
+    } catch {
+      throw new ZebxHttpError(400, 'Request body must be valid JSON.');
+    }
+  }
+
   const chunks: Buffer[] = [];
   let totalBytes = 0;
 

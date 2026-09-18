@@ -135,7 +135,10 @@ export const AssistantHUD: React.FC = () => {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const speechRecognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const speechFinalTranscriptRef = useRef('');
+  const isExplicitlyRecordingRef = useRef(false);
+  const baseTranscriptRef = useRef('');
+  const latestTranscriptRef = useRef('');
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
   const lastAssistantResponseRef = useRef('');
   const neuralCoreState: ZebxNeuralCoreState = isThinking
@@ -164,6 +167,10 @@ export const AssistantHUD: React.FC = () => {
   }, []);
 
   const cleanupRecording = () => {
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
     if (speechRecognitionRef.current) {
       try {
         speechRecognitionRef.current.abort();
@@ -179,6 +186,11 @@ export const AssistantHUD: React.FC = () => {
   };
 
   const stopRecording = () => {
+    isExplicitlyRecordingRef.current = false;
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
     if (speechRecognitionRef.current) {
       try {
         speechRecognitionRef.current.stop();
@@ -188,6 +200,8 @@ export const AssistantHUD: React.FC = () => {
     }
     const recorder = mediaRecorderRef.current;
     if (recorder && recorder.state === 'recording') recorder.stop();
+    setSpeechStatus('idle');
+    setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
   };
 
   const startRecording = async () => {
@@ -197,12 +211,15 @@ export const AssistantHUD: React.FC = () => {
     if (SpeechRecognitionClass) {
       try {
         cleanupRecording();
+        isExplicitlyRecordingRef.current = true;
+        baseTranscriptRef.current = inputText.trim();
+        latestTranscriptRef.current = inputText.trim();
+
         const recognition = new SpeechRecognitionClass();
-        recognition.continuous = false;
+        recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = navigator.language || 'en-US';
 
-        speechFinalTranscriptRef.current = '';
         speechRecognitionRef.current = recognition;
 
         recognition.onstart = () => {
@@ -211,40 +228,48 @@ export const AssistantHUD: React.FC = () => {
         };
 
         recognition.onresult = (event: SpeechRecognitionEventLike) => {
-          let interimText = '';
-          let finalText = '';
+          let sessionFinal = '';
+          let sessionInterim = '';
 
           for (let i = 0; i < event.results.length; i++) {
             const result = event.results[i];
             if (!result || !result[0]) continue;
             if (result.isFinal) {
-              finalText += result[0].transcript;
+              sessionFinal += result[0].transcript + ' ';
             } else {
-              interimText += result[0].transcript;
+              sessionInterim += result[0].transcript;
             }
           }
 
-          const combined = (finalText + (interimText ? ` ${interimText}` : '')).trim();
-          if (combined) {
-            setInputText(combined);
-            speechFinalTranscriptRef.current = combined;
-            setSpeechMessage('HEARING SPEECH...');
+          const combinedFinal = (baseTranscriptRef.current ? baseTranscriptRef.current + ' ' + sessionFinal : sessionFinal).replace(/\s+/g, ' ').trim();
+          const fullText = (combinedFinal + (sessionInterim ? ' ' + sessionInterim : '')).replace(/\s+/g, ' ').trim();
+
+          if (fullText) {
+            setInputText(fullText);
+            latestTranscriptRef.current = fullText;
+            setSpeechStatus('recording');
+            setSpeechMessage('LISTENING // HEARING SPEECH...');
           }
         };
 
         recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {
-          speechRecognitionRef.current = null;
-          if (event.error === 'aborted') {
-            setSpeechStatus('idle');
-            setSpeechMessage('');
+          if (event.error === 'no-speech') {
+            // Short natural pause — maintain listening session
+            if (isExplicitlyRecordingRef.current) {
+              setSpeechMessage('LISTENING // WAITING FOR SPEECH...');
+            }
             return;
           }
 
+          if (event.error === 'aborted') {
+            return;
+          }
+
+          isExplicitlyRecordingRef.current = false;
+          speechRecognitionRef.current = null;
           setSpeechStatus('error');
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             setSpeechMessage('Microphone permission was denied.');
-          } else if (event.error === 'no-speech') {
-            setSpeechMessage('No speech detected. Please speak closer to the mic.');
           } else if (event.error === 'audio-capture') {
             setSpeechMessage('No microphone hardware detected.');
           } else if (event.error === 'network') {
@@ -255,14 +280,39 @@ export const AssistantHUD: React.FC = () => {
         };
 
         recognition.onend = () => {
-          speechRecognitionRef.current = null;
-          if (speechFinalTranscriptRef.current.trim()) {
-            setSpeechStatus('idle');
-            setSpeechMessage('TRANSCRIPT READY');
-          } else {
-            setSpeechStatus('idle');
-            setSpeechMessage('');
+          if (latestTranscriptRef.current) {
+            baseTranscriptRef.current = latestTranscriptRef.current;
           }
+
+          // If the user hasn't explicitly clicked stop, resume listening through pauses
+          if (isExplicitlyRecordingRef.current) {
+            try {
+              recognition.start();
+              setSpeechStatus('recording');
+              setSpeechMessage('LISTENING // SPEAK NOW');
+              return;
+            } catch {
+              restartTimerRef.current = setTimeout(() => {
+                if (isExplicitlyRecordingRef.current) {
+                  try {
+                    recognition.start();
+                    setSpeechStatus('recording');
+                    setSpeechMessage('LISTENING // SPEAK NOW');
+                  } catch {
+                    isExplicitlyRecordingRef.current = false;
+                    speechRecognitionRef.current = null;
+                    setSpeechStatus('idle');
+                    setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
+                  }
+                }
+              }, 250);
+              return;
+            }
+          }
+
+          speechRecognitionRef.current = null;
+          setSpeechStatus('idle');
+          setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
         };
 
         recognition.start();
@@ -280,6 +330,8 @@ export const AssistantHUD: React.FC = () => {
     }
 
     try {
+      cleanupRecording();
+      isExplicitlyRecordingRef.current = true;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'].find(type => MediaRecorder.isTypeSupported(type)) ?? '';
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
@@ -304,6 +356,7 @@ export const AssistantHUD: React.FC = () => {
           const result = await transcribeZebxAudio(audio);
           if (!result.text.trim()) throw new Error('Empty transcript.');
           setInputText(result.text.trim());
+          latestTranscriptRef.current = result.text.trim();
           setSpeechStatus('idle');
           setSpeechMessage('TRANSCRIPT READY');
         } catch (error) {
@@ -388,6 +441,10 @@ export const AssistantHUD: React.FC = () => {
   const submitMessage = async (message: string) => {
     const content = message.trim();
     if (!content || isThinking) return;
+
+    if (isExplicitlyRecordingRef.current) {
+      stopRecording();
+    }
 
     const history = messages.slice(-20).map(({ role, content: messageContent }) => ({
       role,
