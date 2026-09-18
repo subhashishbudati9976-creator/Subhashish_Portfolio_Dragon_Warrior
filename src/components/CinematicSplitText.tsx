@@ -56,6 +56,15 @@ export const CinematicSplitText: React.FC<CinematicSplitTextProps> = ({
             start,
             once: true,
           },
+          onComplete: () => {
+            gsap.set(targets, { filter: 'none', clearProps: 'filter' });
+            if (root) {
+              const masks = root.querySelectorAll('.cinematic-split-mask');
+              masks.forEach(mask => {
+                (mask as HTMLElement).style.overflow = 'visible';
+              });
+            }
+          },
         });
 
         cleanup = () => {

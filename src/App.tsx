@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Nav } from './components/Nav';
 import { CinematicBackground } from './components/hero/CinematicBackground';
 import { HeroSection } from './sections/HeroSection';
@@ -8,11 +8,14 @@ import { ProjectsSection } from './sections/ProjectsSection';
 import { FieldSection } from './sections/FieldSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { ActivitiesSection } from './sections/ActivitiesSection';
+import { BeatboxSection } from './sections/BeatboxSection';
 import { ResumeCTA } from './components/ResumeCTA';
 import { ContactSection } from './sections/ContactSection';
 import { Footer } from './components/Footer';
 import { AssistantHUD } from './components/assistant/AssistantHUD';
-import { AudioController } from './components/audio/AudioController';
+import { AudioController, type AudioControllerHandle } from './components/audio/AudioController';
+import { AutoScrollController } from './components/autoscroll/AutoScrollController';
+import { CinematicWelcomeScreen } from './components/welcome/CinematicWelcomeScreen';
 import Aurora from './components/effects/Aurora';
 import { EnergyTrail } from './components/effects/EnergyTrail';
 import { useRevealObserver } from './hooks/useRevealObserver';
@@ -20,9 +23,43 @@ import { useRevealObserver } from './hooks/useRevealObserver';
 export const App: React.FC = () => {
   useRevealObserver();
   const timelineRef = useRef<HTMLDivElement | null>(null);
+  const audioControllerRef = useRef<AudioControllerHandle | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const wasPlayingBeforeVideoRef = useRef(false);
+  const hasStartedMusicOnWelcomeRef = useRef(false);
+
+  const handleWelcomeEnter = useCallback(() => {
+    // Start background music when visitor clicks the welcome screen entry button
+    if (hasStartedMusicOnWelcomeRef.current) return;
+    hasStartedMusicOnWelcomeRef.current = true;
+    audioControllerRef.current?.play();
+  }, []);
+
+  const handleBeatboxVideoPlay = useCallback(() => {
+    // Pause background music while beatboxing performance video plays
+    setIsVideoPlaying(true);
+    if (audioControllerRef.current?.isPlaying) {
+      wasPlayingBeforeVideoRef.current = true;
+      audioControllerRef.current?.pause();
+    } else {
+      wasPlayingBeforeVideoRef.current = false;
+    }
+  }, []);
+
+  const handleBeatboxVideoPause = useCallback(() => {
+    // Resume background music when beatboxing video is paused or ends
+    setIsVideoPlaying(false);
+    if (wasPlayingBeforeVideoRef.current) {
+      audioControllerRef.current?.play();
+      wasPlayingBeforeVideoRef.current = false;
+    }
+  }, []);
 
   return (
     <div className="portfolio-app">
+      {/* Full-Screen Cinematic Welcome Overlay */}
+      <CinematicWelcomeScreen onEnter={handleWelcomeEnter} />
+
       {/* Global Subtle Cinematic Energy Trail Overlay */}
       <EnergyTrail />
 
@@ -30,7 +67,10 @@ export const App: React.FC = () => {
       <Nav />
 
       {/* Atmospheric Audio Controller HUD */}
-      <AudioController />
+      <AudioController ref={audioControllerRef} />
+
+      {/* Optional Independent Cinematic AutoScroll Controller HUD */}
+      <AutoScrollController isPausedByMedia={isVideoPlaying} />
 
       <main>
         {/* =====================================================================
@@ -61,7 +101,13 @@ export const App: React.FC = () => {
           <section id="projects" className="cinematic-stage stage-4-stage" aria-label="Selected Projects and Climax">
             <ProjectsSection />
             <SkillsSection />
+            {/* Original "BEYOND THE CODE" Section */}
             <ActivitiesSection />
+            {/* Dedicated Beatboxing Performance Section immediately below "BEYOND THE CODE" */}
+            <BeatboxSection
+              onVideoPlay={handleBeatboxVideoPlay}
+              onVideoPause={handleBeatboxVideoPause}
+            />
             <ResumeCTA />
           </section>
 

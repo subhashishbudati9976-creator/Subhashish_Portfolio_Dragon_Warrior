@@ -23,7 +23,7 @@ export const FieldSection: React.FC = () => {
             <CinematicSplitText lines={['THE FIELD']} splitType="words" />
           </p>
           <h2 className="field-title motion-reveal" data-motion-reveal="fade-up">
-            <CinematicSplitText lines={['WHERE I AM', 'HEADED.']} />
+            <CinematicSplitText lines={['WHERE I AM', 'HEADED']} />
           </h2>
           <p className="field-supporting motion-reveal" data-motion-reveal="fade-up">
             Moving from academic experimentation into professional engineering.
