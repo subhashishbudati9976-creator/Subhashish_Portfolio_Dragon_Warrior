@@ -139,6 +139,7 @@ export const AssistantHUD: React.FC = () => {
   const baseTranscriptRef = useRef('');
   const latestTranscriptRef = useRef('');
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const consecutiveNoSpeechCountRef = useRef(0);
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
   const lastAssistantResponseRef = useRef('');
   const neuralCoreState: ZebxNeuralCoreState = isThinking
@@ -172,12 +173,16 @@ export const AssistantHUD: React.FC = () => {
       restartTimerRef.current = null;
     }
     if (speechRecognitionRef.current) {
+      const rec = speechRecognitionRef.current;
+      speechRecognitionRef.current = null;
+      rec.onend = null;
+      rec.onerror = null;
+      rec.onresult = null;
       try {
-        speechRecognitionRef.current.abort();
+        rec.abort();
       } catch {
         // ignore abort errors
       }
-      speechRecognitionRef.current = null;
     }
     mediaStreamRef.current?.getTracks().forEach(track => track.stop());
     mediaStreamRef.current = null;
@@ -187,13 +192,19 @@ export const AssistantHUD: React.FC = () => {
 
   const stopRecording = () => {
     isExplicitlyRecordingRef.current = false;
+    consecutiveNoSpeechCountRef.current = 0;
     if (restartTimerRef.current) {
       clearTimeout(restartTimerRef.current);
       restartTimerRef.current = null;
     }
     if (speechRecognitionRef.current) {
+      const rec = speechRecognitionRef.current;
+      speechRecognitionRef.current = null;
+      rec.onend = null;
+      rec.onerror = null;
+      rec.onresult = null;
       try {
-        speechRecognitionRef.current.stop();
+        rec.stop();
       } catch {
         // ignore stop errors
       }
@@ -204,122 +215,145 @@ export const AssistantHUD: React.FC = () => {
     setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
   };
 
+  const startSpeechRecognitionSession = (): boolean => {
+    const SpeechRecognitionClass = getSpeechRecognitionConstructor();
+    if (!SpeechRecognitionClass) return false;
+
+    try {
+      if (speechRecognitionRef.current) {
+        const oldRec = speechRecognitionRef.current;
+        speechRecognitionRef.current = null;
+        oldRec.onend = null;
+        oldRec.onerror = null;
+        oldRec.onresult = null;
+        try {
+          oldRec.abort();
+        } catch {
+          // ignore
+        }
+      }
+
+      const recognition = new SpeechRecognitionClass();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = navigator.language || 'en-US';
+
+      speechRecognitionRef.current = recognition;
+
+      recognition.onstart = () => {
+        setSpeechStatus('recording');
+        setSpeechMessage('LISTENING // SPEAK NOW');
+      };
+
+      recognition.onresult = (event: SpeechRecognitionEventLike) => {
+        consecutiveNoSpeechCountRef.current = 0;
+        let sessionFinal = '';
+        let sessionInterim = '';
+
+        for (let i = 0; i < event.results.length; i++) {
+          const result = event.results[i];
+          if (!result || !result[0]) continue;
+          if (result.isFinal) {
+            sessionFinal += result[0].transcript + ' ';
+          } else {
+            sessionInterim += result[0].transcript;
+          }
+        }
+
+        const combinedFinal = (baseTranscriptRef.current ? baseTranscriptRef.current + ' ' + sessionFinal : sessionFinal).replace(/\s+/g, ' ').trim();
+        const fullText = (combinedFinal + (sessionInterim ? ' ' + sessionInterim : '')).replace(/\s+/g, ' ').trim();
+
+        if (fullText) {
+          setInputText(fullText);
+          latestTranscriptRef.current = fullText;
+          setSpeechStatus('recording');
+          setSpeechMessage('LISTENING // HEARING SPEECH...');
+        }
+      };
+
+      recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {
+        if (event.error === 'no-speech') {
+          // Natural user pause — keep session alive
+          consecutiveNoSpeechCountRef.current += 1;
+          if (isExplicitlyRecordingRef.current) {
+            setSpeechMessage('LISTENING // WAITING FOR SPEECH...');
+          }
+          return;
+        }
+
+        if (event.error === 'aborted') {
+          return;
+        }
+
+        isExplicitlyRecordingRef.current = false;
+        speechRecognitionRef.current = null;
+        setSpeechStatus('error');
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setSpeechMessage('Microphone permission was denied. Please allow microphone access.');
+        } else if (event.error === 'audio-capture') {
+          setSpeechMessage('No microphone hardware detected or microphone is in use.');
+        } else if (event.error === 'network') {
+          setSpeechMessage('Network error during speech recognition.');
+        } else {
+          setSpeechMessage(`Voice recognition error: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        if (latestTranscriptRef.current) {
+          baseTranscriptRef.current = latestTranscriptRef.current;
+        }
+
+        speechRecognitionRef.current = null;
+
+        // If the user intends to keep speaking, instantiate a FRESH session.
+        // Calling .start() on the same ended instance throws in Chromium.
+        if (isExplicitlyRecordingRef.current) {
+          if (consecutiveNoSpeechCountRef.current > 12) {
+            isExplicitlyRecordingRef.current = false;
+            setSpeechStatus('idle');
+            setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : 'LISTENING TIMED OUT');
+            return;
+          }
+
+          restartTimerRef.current = setTimeout(() => {
+            if (isExplicitlyRecordingRef.current) {
+              const restarted = startSpeechRecognitionSession();
+              if (!restarted) {
+                isExplicitlyRecordingRef.current = false;
+                setSpeechStatus('idle');
+                setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
+              }
+            }
+          }, 80);
+          return;
+        }
+
+        setSpeechStatus('idle');
+        setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
+      };
+
+      recognition.start();
+      return true;
+    } catch (err) {
+      console.warn('[ZEBX] Web Speech API session startup failed:', err);
+      return false;
+    }
+  };
+
   const startRecording = async () => {
     const SpeechRecognitionClass = getSpeechRecognitionConstructor();
 
     // Primary: Web Speech API (runs directly in Chrome, Edge, Safari; no backend or API keys required)
     if (SpeechRecognitionClass) {
-      try {
-        cleanupRecording();
-        isExplicitlyRecordingRef.current = true;
-        baseTranscriptRef.current = inputText.trim();
-        latestTranscriptRef.current = inputText.trim();
+      cleanupRecording();
+      isExplicitlyRecordingRef.current = true;
+      consecutiveNoSpeechCountRef.current = 0;
+      baseTranscriptRef.current = inputText.trim();
+      latestTranscriptRef.current = inputText.trim();
 
-        const recognition = new SpeechRecognitionClass();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = navigator.language || 'en-US';
-
-        speechRecognitionRef.current = recognition;
-
-        recognition.onstart = () => {
-          setSpeechStatus('recording');
-          setSpeechMessage('LISTENING // SPEAK NOW');
-        };
-
-        recognition.onresult = (event: SpeechRecognitionEventLike) => {
-          let sessionFinal = '';
-          let sessionInterim = '';
-
-          for (let i = 0; i < event.results.length; i++) {
-            const result = event.results[i];
-            if (!result || !result[0]) continue;
-            if (result.isFinal) {
-              sessionFinal += result[0].transcript + ' ';
-            } else {
-              sessionInterim += result[0].transcript;
-            }
-          }
-
-          const combinedFinal = (baseTranscriptRef.current ? baseTranscriptRef.current + ' ' + sessionFinal : sessionFinal).replace(/\s+/g, ' ').trim();
-          const fullText = (combinedFinal + (sessionInterim ? ' ' + sessionInterim : '')).replace(/\s+/g, ' ').trim();
-
-          if (fullText) {
-            setInputText(fullText);
-            latestTranscriptRef.current = fullText;
-            setSpeechStatus('recording');
-            setSpeechMessage('LISTENING // HEARING SPEECH...');
-          }
-        };
-
-        recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {
-          if (event.error === 'no-speech') {
-            // Short natural pause — maintain listening session
-            if (isExplicitlyRecordingRef.current) {
-              setSpeechMessage('LISTENING // WAITING FOR SPEECH...');
-            }
-            return;
-          }
-
-          if (event.error === 'aborted') {
-            return;
-          }
-
-          isExplicitlyRecordingRef.current = false;
-          speechRecognitionRef.current = null;
-          setSpeechStatus('error');
-          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-            setSpeechMessage('Microphone permission was denied.');
-          } else if (event.error === 'audio-capture') {
-            setSpeechMessage('No microphone hardware detected.');
-          } else if (event.error === 'network') {
-            setSpeechMessage('Network error during speech recognition.');
-          } else {
-            setSpeechMessage(`Voice recognition error: ${event.error}`);
-          }
-        };
-
-        recognition.onend = () => {
-          if (latestTranscriptRef.current) {
-            baseTranscriptRef.current = latestTranscriptRef.current;
-          }
-
-          // If the user hasn't explicitly clicked stop, resume listening through pauses
-          if (isExplicitlyRecordingRef.current) {
-            try {
-              recognition.start();
-              setSpeechStatus('recording');
-              setSpeechMessage('LISTENING // SPEAK NOW');
-              return;
-            } catch {
-              restartTimerRef.current = setTimeout(() => {
-                if (isExplicitlyRecordingRef.current) {
-                  try {
-                    recognition.start();
-                    setSpeechStatus('recording');
-                    setSpeechMessage('LISTENING // SPEAK NOW');
-                  } catch {
-                    isExplicitlyRecordingRef.current = false;
-                    speechRecognitionRef.current = null;
-                    setSpeechStatus('idle');
-                    setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
-                  }
-                }
-              }, 250);
-              return;
-            }
-          }
-
-          speechRecognitionRef.current = null;
-          setSpeechStatus('idle');
-          setSpeechMessage(latestTranscriptRef.current ? 'TRANSCRIPT READY' : '');
-        };
-
-        recognition.start();
-        return;
-      } catch (err) {
-        console.warn('[ZEBX] Web Speech API initialization failed, falling back', err);
-      }
+      const started = startSpeechRecognitionSession();
+      if (started) return;
     }
 
     // Fallback: If Web Speech API is not supported in this browser (e.g. Firefox desktop)
