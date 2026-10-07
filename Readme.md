@@ -229,30 +229,30 @@ This helped the portfolio feel less like a collection of effects and more like a
 ## 🧩 BUILDING THE PORTFOLIO AS A REAL APPLICATION
 Underneath the cinematic layer, the portfolio was structured as a real React application.
 The project was broken into focused sections rather than one giant component.
-src/
-├── components/
-├── hooks/
-├── sections/
-│   ├── AboutSection.tsx
-│   ├── ExperienceSection.tsx
-│   ├── HeroSection.tsx
-│   ├── ProjectsSection.tsx
-│   ├── SkillsSection.tsx
-│   ├── ContactSection.tsx
-│   ├── AssistantSection.tsx
-│   └── MindsetSection.tsx
-├── styles/
-│   ├── components.css
-│   ├── layout.css
-│   ├── portfolio.css
-│   ├── reset.css
-│   ├── surfaces.css
-│   ├── tokens.css
-│   └── typography.css
-├── types/
-├── App.tsx
-└── main.tsx
-
+src/<br>
+├── components/<br>
+├── hooks/<br>
+├── sections/<br>
+│   ├── AboutSection.tsx<br>
+│   ├── ExperienceSection.tsx<br>
+│   ├── HeroSection.tsx<br>
+│   ├── ProjectsSection.tsx<br>
+│   ├── SkillsSection.tsx<br>
+│   ├── ContactSection.tsx<br>
+│   ├── AssistantSection.tsx<br>
+│   └── MindsetSection.tsx<br>
+├── styles/<br>
+│   ├── components.css<br>
+│   ├── layout.css<br>
+│   ├── portfolio.css<br>
+│   ├── reset.css<br>
+│   ├── surfaces.css<br>
+│   ├── tokens.css<br>
+│   └── typography.css<br>
+├── types/<br>
+├── App.tsx<br>
+└── main.tsx<br>
+<br>
 This became important because the project kept changing.
 When the cinematic changed, the entire portfolio didn't need to be rewritten.
 When the typography changed, the component structure didn't have to change.
@@ -286,7 +286,7 @@ Both involve:
 - practice
 - modular patterns
 - continuous improvement
-The portfolio uses that relationship as part of its personal identity rather than treating the website as a purely technical résumé.
+The portfolio uses that relationship as part of its personal identity rather than treating the website as a purely technical résumé.<br>
 💻 EXPERIENCE
 The Experience section was designed around a timeline rather than a collection of generic cards.
 The goal was to make progression visible.
@@ -386,49 +386,49 @@ A portfolio should never become unusable just because an external AI service fai
 ## 🧪 THE PROBLEMS I ACTUALLY FACED
 This project was not a straight line.
 There were failures everywhere.
-❌ The first visual direction didn't feel right
-Solution:
-Reworked the identity from a generic modern portfolio into the Dragon Warrior / ShadowFox concept.
-❌ Blue/cyan styling weakened the identity
-Solution:
-Replaced the palette with a controlled crimson/ember system.
-❌ The cinematic looked like a normal video
-Solution:
-Changed the architecture toward scroll-controlled cinematic progression.
-❌ Scroll animation lagged
-Solution:
-Investigated frame density, scrubbing strategy, asset resolution and browser-side performance instead of simply adding more animation.
-❌ Animation direction felt wrong
-Solution:
-Reworked the mapping between user input and cinematic progress.
-❌ High-frame-count approaches became heavy
-Solution:
-Evaluated the tradeoff between frame count, visual quality, responsiveness and browser performance.
-❌ AI assistant failed to respond
-Solution:
-Introduced a cleaner service boundary and treated provider failure as a state the interface must handle rather than allowing the entire application to depend on successful AI responses.
-❌ The portfolio kept becoming visually overloaded
-Solution:
-Separated motion systems and made animation serve hierarchy instead of adding effects everywhere.
-❌ Building with AI tools introduced another challenge
-AI could generate code quickly.
-But generated code is not automatically good architecture.
-The project therefore went through repeated cycles of:
-Generate
-   ↓
-Run
-   ↓
-Break
-   ↓
-Inspect
-   ↓
-Understand
-   ↓
-Refactor
-   ↓
-Validate
-   ↓
-Repeat
+❌ The first visual direction didn't feel right<br>
+Solution:<br>
+Reworked the identity from a generic modern portfolio into the Dragon Warrior / ShadowFox concept.<br>
+❌ Blue/cyan styling weakened the identity<br>
+Solution:<br>
+Replaced the palette with a controlled crimson/ember system.<br>
+❌ The cinematic looked like a normal video<br>
+Solution:<br>
+Changed the architecture toward scroll-controlled cinematic progression.<br>
+❌ Scroll animation lagged<br>
+Solution:<br>
+Investigated frame density, scrubbing strategy, asset resolution and browser-side performance instead of simply adding more animation.<br>
+❌ Animation direction felt wrong<br>
+Solution:<br>
+Reworked the mapping between user input and cinematic progress.<br>
+❌ High-frame-count approaches became heavy<br>
+Solution:<br>
+Evaluated the tradeoff between frame count, visual quality, responsiveness and browser performance.<br>
+❌ AI assistant failed to respond<br>
+Solution:<br>
+Introduced a cleaner service boundary and treated provider failure as a state the interface must handle rather than allowing the entire application to depend on successful AI responses.<br>
+❌ The portfolio kept becoming visually overloaded<br>
+Solution:<br>
+Separated motion systems and made animation serve hierarchy instead of adding effects everywhere.<br>
+❌ Building with AI tools introduced another challenge<br>
+AI could generate code quickly.<br>
+But generated code is not automatically good architecture.<br>
+The project therefore went through repeated cycles of:<br>
+Generate<br>
+   ↓<br>
+Run<br>
+   ↓<br>
+Break<br>
+   ↓<br>
+Inspect<br>
+   ↓<br>
+Understand<br>
+   ↓<br>
+Refactor<br>
+   ↓<br>
+Validate<br>
+   ↓<br>
+Repeat<br>
 
 That loop became one of the most important parts of the project.
 ## 🧰 TOOLS THAT BECAME PART OF THE JOURNEY
