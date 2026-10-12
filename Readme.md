@@ -16,7 +16,7 @@
 
 ## 🎬 THE EXPERIENCE
 
-<video src="./shadowfox-cinematic (2) (1).mp4" autoplay muted loop playsinline controls width="100%"></video>
+<video src="shadowfox-cinematic (2) (1).mp4" autoplay muted loop playsinline controls width="100%"></video>
 
 
 ---
@@ -52,7 +52,7 @@ The original visual target was a **cool-toned, violet/purple Dragon Warrior worl
 The reference below captures that intended direction. It was the mood and composition I wanted the portfolio to communicate—not a claim that the final website would look exactly like the reference.
 
 <p align="center">
-  <img src="./assets/dragon-warrior/violet-dragon-warrior-concept.png" alt="Original violet Dragon Warrior portfolio concept: a glowing purple dragon and warrior in a cinematic fantasy city" width="100%" />
+  <img src="Screenshot 2026-09-10 022051.png" alt="Original violet Dragon Warrior portfolio concept: a glowing purple dragon and warrior in a cinematic fantasy city" width="100%" />
 </p>
 
 The difficult part was translating that concept into a working 3D scene and then into the actual website. The 3D experiments produced very different results: a dark reddish-brown dragon, a white untextured-looking model, and a colourful low-poly reconstruction. Those experiments were useful, but they did **not** consistently match the violet, atmospheric visual direction I had imagined.
@@ -98,17 +98,17 @@ It had to be experimented with.
 The following snapshots show why choosing a model was not enough. The intended violet fantasy artwork, the Meshy low-poly result, the darker dragon in the cinematic scene, and the white model preview all look noticeably different. They document the experiments; they are not presented as four shots of one finished, consistent visual result.
 
 <p align="center">
-  <img src="./assets/dragon-warrior/meshy-low-poly-dragon-experiment.png" alt="Meshy low-poly dragon experiment with a multicoloured triangular mesh" width="100%" />
+  <img src="Screenshot 2026-09-10 025201.png" alt="Meshy low-poly dragon experiment with a multicoloured triangular mesh" width="100%" />
 </p>
 <p align="center"><em>Meshy experiment — the low-poly topology and separated colours were useful for testing, but did not match the intended cinematic purple style.</em></p>
 
 <p align="center">
-  <img src="./assets/dragon-warrior/dark-dragon-cinematic-scene.png" alt="Dark reddish-brown dragon model in a cinematic camera scene" width="100%" />
+  <img src="Screenshot 2026-09-10 141054.png" alt="Dark reddish-brown dragon model in a cinematic camera scene" width="100%" />
 </p>
 <p align="center"><em>Cinematic scene test — the dragon read as dark red/brown rather than the cool violet look from the original concept.</em></p>
 
 <p align="center">
-  <img src="./assets/dragon-warrior/white-dragon-model-preview.png" alt="White dragon model preview in a 3D scene editor" width="100%" />
+  <img src="Screenshot 2026-09-10 031710.png" alt="White dragon model preview in a 3D scene editor" width="100%" />
 </p>
 <p align="center"><em>Model preview — a white, largely untextured-looking render, showing that the asset and material treatment still needed work.</em></p>
 
