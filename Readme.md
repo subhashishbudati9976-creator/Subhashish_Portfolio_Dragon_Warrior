@@ -4,7 +4,7 @@
 
 [![Watch the cinematic experience](Screenshot%202026-09-15%20172644.png)](https://github.com/subhashishbudati9976-creator/Subhashish_Portfolio_Dragon_Warrior/blob/main/shadowfox-cinematic.mp4)
 
-**▶ Click the image to watch the cinematic intro**
+** ▶ Click the image to watch the cinematic intro**
 
 <p align="center">
   <strong>A portfolio built as an engineering project, a visual experiment, and a personal story.</strong>
@@ -14,6 +14,7 @@
   <em>Not a template. Not a one-shot AI generation. Built, broken, rebuilt, tested, and refined.</em>
 </p>
 
+** Look at the development archive below to view my jouney of development of my portfolio! **
 
 ---
 
