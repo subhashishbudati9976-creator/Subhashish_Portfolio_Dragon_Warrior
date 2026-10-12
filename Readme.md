@@ -16,11 +16,8 @@
 
 ## 🎬 THE EXPERIENCE
 
-<video src="./shadowfox-cinematic.mp4" autoplay muted loop playsinline controls width="100%"></video>
+<video src="./shadowfox-cinematic (2) (1).mp4" autoplay muted loop playsinline controls width="100%"></video>
 
-> **Place the final cinematic video at `./shadowfox-cinematic.mp4` in the repository.**
->
-> The video is intentionally placed at the beginning of this README because the cinematic experience is one of the defining parts of the portfolio. If GitHub blocks autoplay, the video will still be available through the native controls.
 
 ---
 
@@ -50,35 +47,19 @@ And building it turned into a project of its own.
 
 # 🐉 FROM PORTFOLIO TO DRAGON WARRIOR
 
-The first versions were much more conventional.
+The original visual target was a **cool-toned, violet/purple Dragon Warrior world**: a powerful glowing dragon, a cinematic fantasy atmosphere, and a warrior facing it in a dramatic environment.
 
-There were cleaner layouts.
+The reference below captures that intended direction. It was the mood and composition I wanted the portfolio to communicate—not a claim that the final website would look exactly like the reference.
 
-There were blue and cyan accents.
+<p align="center">
+  <img src="./assets/dragon-warrior/violet-dragon-warrior-concept.png" alt="Original violet Dragon Warrior portfolio concept: a glowing purple dragon and warrior in a cinematic fantasy city" width="100%" />
+</p>
 
-There were standard hero sections.
+The difficult part was translating that concept into a working 3D scene and then into the actual website. The 3D experiments produced very different results: a dark reddish-brown dragon, a white untextured-looking model, and a colourful low-poly reconstruction. Those experiments were useful, but they did **not** consistently match the violet, atmospheric visual direction I had imagined.
 
-There were familiar portfolio patterns.
+That gap between **the intended concept and the rendered result** became one of the main design problems in this project.
 
-They worked.
-
-But they didn't feel like **Subhashish**.
-
-So the visual direction changed.
-
-The blue/cyan identity gradually disappeared and was replaced with a darker **crimson, ember, black and warrior-inspired visual system**.
-
-The portfolio stopped trying to look like every other modern developer website.
-
-The goal became:
-
-> **Make the website feel like entering a world.**
-
-That is where the dragon came from.
-
-Not because a dragon looks cool.
-
-But because it became a visual metaphor for the way the project was being built:
+The portfolio still needed to feel personal and cinematic, rather than like another developer website with a gradient background, a few cards, and a list of technologies. The dragon became a visual metaphor for the build itself:
 
 **slowly, experimentally, through failures, iterations and constant refinement.**
 
@@ -111,6 +92,25 @@ The screenshots from the development process show the dragon evolving from rough
 There was no single "perfect asset" that solved the problem.
 
 It had to be experimented with.
+
+#### The visual mismatch, documented
+
+The following snapshots show why choosing a model was not enough. The intended violet fantasy artwork, the Meshy low-poly result, the darker dragon in the cinematic scene, and the white model preview all look noticeably different. They document the experiments; they are not presented as four shots of one finished, consistent visual result.
+
+<p align="center">
+  <img src="./assets/dragon-warrior/meshy-low-poly-dragon-experiment.png" alt="Meshy low-poly dragon experiment with a multicoloured triangular mesh" width="100%" />
+</p>
+<p align="center"><em>Meshy experiment — the low-poly topology and separated colours were useful for testing, but did not match the intended cinematic purple style.</em></p>
+
+<p align="center">
+  <img src="./assets/dragon-warrior/dark-dragon-cinematic-scene.png" alt="Dark reddish-brown dragon model in a cinematic camera scene" width="100%" />
+</p>
+<p align="center"><em>Cinematic scene test — the dragon read as dark red/brown rather than the cool violet look from the original concept.</em></p>
+
+<p align="center">
+  <img src="./assets/dragon-warrior/white-dragon-model-preview.png" alt="White dragon model preview in a 3D scene editor" width="100%" />
+</p>
+<p align="center"><em>Model preview — a white, largely untextured-looking render, showing that the asset and material treatment still needed work.</em></p>
 
 ---
 
@@ -207,17 +207,17 @@ Scrolling backward reverses it.
 Continuing forward progresses naturally.
 The cinematic should eventually hand control back to the portfolio instead of feeling like a separate video page.
 ## 🎨 BUILDING THE VISUAL LANGUAGE
-The portfolio gradually developed its own visual system.
-The earlier blue/cyan aesthetic was replaced with a more controlled palette:
+The portfolio's visual system evolved during development, and the final direction did not fully reproduce the original violet concept.
+The original target was cool purple/violet fantasy lighting; the 3D experiments and cinematic scene drifted toward darker red/brown tones and, in one preview, a white model. That difference is part of the documented design journey.
+Across the portfolio UI, the explored palette included:
 - deep black
 - near-black surfaces
-- crimson
-- ember red
+- violet/purple in the original concept
+- crimson and ember red in later experiments
 - muted gray
 - white typography
 - restrained accent gradients
-The goal was not to use red everywhere.
-The goal was to make red feel meaningful.
+The goal was to establish a coherent identity, but the dragon asset's material and lighting did not always support the original purple direction.
 The typography was also deliberately separated by purpose.
 Display
 Editorial/display typography for major statements and hero content.
@@ -386,12 +386,13 @@ A portfolio should never become unusable just because an external AI service fai
 ## 🧪 THE PROBLEMS I ACTUALLY FACED
 This project was not a straight line.
 There were failures everywhere.
-❌ The first visual direction didn't feel right<br>
+❌ The intended violet Dragon Warrior concept did not translate consistently into the actual result<br>
+The target was a cool-purple dragon, dramatic fantasy atmosphere, and a warrior-focused cinematic composition. The 3D tests instead produced noticeably different looks, including a dark red/brown dragon, a white model preview, and a multicoloured low-poly mesh.<br>
+Solution / lesson:<br>
+Documented the concept and the experiments separately, and treated model choice, materials, lighting, camera framing, and the website's final art direction as connected decisions. The mismatch is an important limitation of the process—not something to disguise as a successful one-to-one recreation.<br>
+❌ The early visual direction felt inconsistent<br>
 Solution:<br>
-Reworked the identity from a generic modern portfolio into the Dragon Warrior / ShadowFox concept.<br>
-❌ Blue/cyan styling weakened the identity<br>
-Solution:<br>
-Replaced the palette with a controlled crimson/ember system.<br>
+Iterated on the visual identity and tested the dragon asset in the actual scene rather than judging it only from a reference image or isolated model preview.<br>
 ❌ The cinematic looked like a normal video<br>
 Solution:<br>
 Changed the architecture toward scroll-controlled cinematic progression.<br>
@@ -579,6 +580,28 @@ Contact experience
 
 Zebx AI
 <img src="./Screenshot%202026-09-15%20133053.png" alt="Zebx AI portfolio assistant" width="100%" />
+
+### Dragon Warrior concept-to-result comparison
+
+**Original concept — the violet Dragon Warrior direction**
+
+<img src="./Screenshot 2026-09-10 022051.png" alt="Violet Dragon Warrior concept reference" width="100%" />
+
+**Meshy — low-poly dragon experiment**
+
+<img src="./Screenshot 2026-09-10 025201.png" alt="Multicoloured low-poly dragon mesh experiment in Meshy" width="100%" />
+
+**Cinematic editor — dark dragon and camera setup**
+
+<img src="./Screenshot 2026-09-12 141054.png" alt="Dark dragon in the cinematic camera scene" width="100%" />
+
+**3D preview — white dragon model**
+
+<img src="./Screenshot 2026-09-10 031710.png" alt="White dragon model preview" width="100%" />
+
+These four images are intentionally shown together because the key story is the difference between the **visual target** and the **results of the 3D asset experiments**.
+
+---
 
 ## 🏗️ ARCHITECTURE
 The portfolio is built using a component-based React architecture.
