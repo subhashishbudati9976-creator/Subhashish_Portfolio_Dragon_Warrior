@@ -103,7 +103,7 @@ The following snapshots show why choosing a model was not enough. The intended v
 <p align="center"><em>Meshy experiment — the low-poly topology and separated colours were useful for testing, but did not match the intended cinematic purple style.</em></p>
 
 <p align="center">
-  <img src="Screenshot 2026-09-10 141054.png" alt="Dark reddish-brown dragon model in a cinematic camera scene" width="100%" />
+  <img src="Screenshot 2026-09-12 141054.png" alt="Dark reddish-brown dragon model in a cinematic camera scene" width="100%" />
 </p>
 <p align="center"><em>Cinematic scene test — the dragon read as dark red/brown rather than the cool violet look from the original concept.</em></p>
 
